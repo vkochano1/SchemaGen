@@ -1,0 +1,10 @@
+
+class Enumeration
+{
+[[[cog
+import renderers.enumeration
+r = renderers.enumeration.Renderer(model,enum)
+cog.outl(r.generateEnumValues())
+]]]
+[[[end]]]
+};

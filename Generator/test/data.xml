@@ -1,0 +1,35 @@
+
+<Schema>
+
+    <Include Name="data0.xml"/>
+
+<!-- ddfdfdf
+-->
+  <Namespace Name="N">
+
+    <Field Name="field4"  Tag="443478" DataType="F::En3"/>
+
+    <Enumeration Name="En2">
+      <Item Name="F2" Value="V2"/>
+      <Item Name="F3" Value="V3"/>
+    </Enumeration>
+  </Namespace>
+
+
+    <Namespace Name="N::F">
+
+      <Import Namespace="Z"/>
+
+      <Message Name="Message" Extends="G::NameX::Base" Tag="123">
+        <Property Name="G::NameX::field1" Required="True"/>
+        <Property Name="G::NameX::field2"  Required="True"/>
+        <Property Name="field4"  Required="True"/>
+      </Message>
+
+      <Enumeration Name="En3">
+        <Item Name="F2" Value="V2"/>
+      </Enumeration>
+
+    </Namespace>
+
+  </Schema>

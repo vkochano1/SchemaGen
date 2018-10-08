@@ -1,0 +1,13 @@
+[[[cog
+import renderers.namespace
+
+namespaceRenderer = renderers.namespace.Renderer(model,field.namespace)
+]]]
+[[[end]]]
+#paragma once
+
+[[[cog
+cog.outl(namespaceRenderer.generateNamespaceBegin())
+cog.outl(namespaceRenderer.generateNamespaceEnd())
+]]]
+[[[end]]]

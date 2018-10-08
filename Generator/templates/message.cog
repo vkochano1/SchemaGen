@@ -1,0 +1,16 @@
+[[[cog
+import renderers.message
+import renderers.namespace
+
+messageRenderer = renderers.message.Renderer(model,msg)
+namespaceRenderer = renderers.namespace.Renderer(model,msg.namespace)
+]]]
+[[[end]]]
+#paragma once
+
+[[[cog
+cog.outl(messageRenderer.generateIncludes())
+cog.outl(namespaceRenderer.generateNamespaceBegin())
+cog.outl(namespaceRenderer.generateNamespaceEnd())
+]]]
+[[[end]]]
