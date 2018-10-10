@@ -1,3 +1,4 @@
+import os
 def singleton(cls):
     instances = {}
     def wrapper(*args, **kwargs):
@@ -8,6 +9,14 @@ def singleton(cls):
 
 
 class NamespacePath(object):
+    @staticmethod
+    def createOutDirectory(prefix, namespace, suffix):
+        dir = os.path.join(prefix, '/'.join(namespace.components),  suffix)
+
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        return dir
+
     @staticmethod
     def componentsFromPath(path):
         return path.split('::')

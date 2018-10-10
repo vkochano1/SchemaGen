@@ -19,3 +19,18 @@ class Loader(object):
             pkg = importlib.import_module(name)
             traits = getattr(pkg, "Traits")
             self.dataTypeName [name] = traits
+
+
+    def processDataTypeElements(self, element, namespace = None):
+        class CustomDataType(object):
+            def __init__(self, name, isSimpleType = True):
+                self.includes = []
+                self.additionalBaseClasses =[]
+                self.specialTemplateFile = ""
+                self.simpleType = isSimpleType
+                self.name = name
+
+        if hasattr(element, 'DataType'):
+            for dataType in element.DataType:
+                name = dataType["Name"]
+                self.dataTypeName[name] = CustomDataType(name)

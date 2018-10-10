@@ -1,7 +1,0 @@
-#paragma once
-
-namespace N
-{
-
-}
-

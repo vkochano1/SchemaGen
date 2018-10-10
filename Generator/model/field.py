@@ -27,3 +27,5 @@ class Field(object):
         self.dataType = self.namespace.resolveEnumByName(self.dataTypeName)
         if self.dataType == None:
             self.dataType = loader.data_type.Loader().dataTypeName[self.dataTypeName]
+
+        self.logger.debug('Resolved field %s' % str(self))    

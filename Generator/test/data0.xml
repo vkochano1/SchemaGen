@@ -1,9 +1,10 @@
 
 <Schema>
 
-<Include Name="data.xml"/>
+<Include File="data.xml"/>
   <Namespace Name="Z::G::NameX">
-    <Field Name="field1" Tag="34" DataType="String"/>
+    <DataType Name="NT"/>
+    <Field Name="field1" Tag="34" DataType="NT"/>
     <Field Name="field2"  Tag="44444" DataType="Long"/>
     <Field Name="field3"  Tag="44" DataType="String"/>
 

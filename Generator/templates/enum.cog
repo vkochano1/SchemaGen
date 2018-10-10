@@ -1,10 +1,16 @@
-
-class Enumeration
-{
 [[[cog
-import renderers.enumeration
-r = renderers.enumeration.Renderer(model,enum)
-cog.outl(r.generateEnumValues())
+        cog.outl("class %s" % enum.name)
 ]]]
 [[[end]]]
+{
+public:
+    enum Enumeration
+    {
+        [[[cog
+           import renderers.enumeration
+           r = renderers.enumeration.Renderer(model,enum)
+           cog.outl(r.generateEnumValues())
+        ]]]
+        [[[end]]]
+    };
 };

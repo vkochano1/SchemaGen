@@ -6,6 +6,7 @@ import model.namespace
 import model.schema
 import model.property
 import model.enumeration
+import loader.data_type
 
 class ModelLoader(object):
     def __init__(self, filename, env):
@@ -19,24 +20,33 @@ class ModelLoader(object):
         self.processIncludedFiles()
         self.modelNamespaces.resolveLinks()
 
+    def processFieldElements(self, currentEl, namespace):
+        if hasattr(currentEl, 'Field'):
+            self.namespacesWithFields.append((namespace, currentEl.Field) )
+
+    def processMessageElements(self, currentEl, namespace):
+        if hasattr(currentEl, 'Message'):
+            self.namespacesWithMessages.append((namespace, currentEl.Message))
+
+    def processEnumerationElements(self, currentEl, namespace):
+        if hasattr(currentEl, 'Enumeration'):
+            self.namespacesWithEnumerations.append((namespace, currentEl.Enumeration))
+
+    def processImportElements(self, currentEl, namespace):
+        if hasattr(currentEl, 'Import'):
+                for imp in currentEl.Import:
+                    resolvedImportedNamespaceName = imp["Namespace"]
+                    namespace.importNamespace(resolvedImportedNamespaceName)
+
     def processNamespace(self, namespaceEl):
         name = namespaceEl["Name"]
         resolvedNamespace = self.modelNamespaces.createOrGet(name)[-1]
 
-        if hasattr(namespaceEl, 'Field'):
-            self.namespacesWithFields.append((resolvedNamespace, namespaceEl.Field) )
-
-        if hasattr(namespaceEl, 'Message'):
-            self.namespacesWithMessages.append((resolvedNamespace, namespaceEl.Message))
-
-        if hasattr(namespaceEl, 'Enumeration'):
-            self.namespacesWithEnumerations.append((resolvedNamespace, namespaceEl.Enumeration))
-
-        if hasattr(namespaceEl, 'Import'):
-                for imp in namespaceEl.Import:
-                    resolvedImportedNamespaceName = imp["Namespace"]
-                    resolvedNamespace.importNamespace(resolvedImportedNamespaceName)
-
+        loader.data_type.Loader().processDataTypeElements(namespaceEl)
+        self.processEnumerationElements(namespaceEl, resolvedNamespace)
+        self.processFieldElements(namespaceEl, resolvedNamespace)
+        self.processMessageElements(namespaceEl, resolvedNamespace)
+        self.processImportElements(namespaceEl, resolvedNamespace)
 
     def processIncludedFiles(self):
         for includedFile in self.includedFiles:
@@ -44,14 +54,15 @@ class ModelLoader(object):
                 for namespace in includedFile.Schema.Namespace:
                     self.processNamespace(namespace)
 
+        for resolvedNamespace, enumElements in self.namespacesWithEnumerations:
+            self.processEnumerations(resolvedNamespace, enumElements)
+
         for resolvedNamespace, fieldElements in self.namespacesWithFields:
             self.processFields(resolvedNamespace, fieldElements)
 
         for resolvedNamespace, messageElements in self.namespacesWithMessages:
             self.processMessages(resolvedNamespace, messageElements)
 
-        for resolvedNamespace, enumElements in self.namespacesWithEnumerations:
-            self.processEnumerations(resolvedNamespace, enumElements)
 
     def processFields(self, namespace, fieldElements):
         for fieldElement in fieldElements:
@@ -76,17 +87,33 @@ class ModelLoader(object):
         for messageElement in messageElements:
             name = messageElement["Name"]
             tag = messageElement["Tag"]
-            isAbstract = messageElement["IsAbstract"] or False
+            isAbstract = messageElement["Abstract"] or False
             basename = messageElement["Extends"]
 
             message = model.message.Message(name, tag, namespace, basename, isAbstract);
             self.processMessageProperties(namespace, message, messageElement)
+            self.processMethods(message, messageElement)
+            self.processConstructorBody(message, messageElement)
+
             namespace.addMessage(message)
 
     def processMessageProperties(self, namespace, message, messageElement):
         if hasattr(messageElement, 'Property'):
             for property in messageElement.Property:
                 name = property["Name"]
-                required = property["Required"] 
+                required = property["Required"]
                 defaultValue = property["Default"]
                 message.addProperty( name, required)
+
+    def processMethods(self, modelObj, element):
+        if hasattr(element, 'Method'):
+            for method in element.Method:
+                declaration = method["Declaration"]
+                modelObj.addMethod(declaration)
+
+    def processConstructorBody(self, modelObj, element):
+        if hasattr(element, 'constructor_body'):
+            if len(element.constructor_body) > 1:
+                raise Exception("Multiple constructor bodies")
+            declaration = method["Declaration"][0]
+            modelObj.setConstructorBody(declaration)
