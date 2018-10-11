@@ -22,6 +22,8 @@ model = loader.to_model.ModelLoader('test/data.xml',env).modelNamespaces
 prefix = 'test/out/'
 
 for _, namespace in model.namespaces.iteritems():
+    if not namespace.hasElements():
+        continue
     dirMsgs = utils.NamespacePath.createOutDirectory(prefix, namespace, 'Messages' );
     dirEnums = utils.NamespacePath.createOutDirectory(prefix, namespace, 'Enumerations' );
     dirFields = utils.NamespacePath.createOutDirectory(prefix, namespace, 'Fields' );

@@ -8,7 +8,7 @@ class Renderer:
     def generateIncludes(self):
         out = ""
 
-        for name, prop in self.message.propertyByName.iteritems():
+        for prop in self.message.props:
             field = prop.field
             s1 = '/'.join(field.namespace.components)
             s1 = s1 + '/' + field.name + ".h"

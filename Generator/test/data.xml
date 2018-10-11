@@ -16,7 +16,6 @@
     </Enumeration>
   </Namespace>
 
-
     <Namespace Name="N::F">
 
       <Import Namespace="Z"/>
@@ -24,6 +23,7 @@
       <Message Name="Message" Extends="G::NameX::Base" Tag="123">
         <Property Name="G::NameX::field1" Required="True"/>
         <Property Name="G::NameX::field2"  Required="True"/>
+        <Injects Name="G::NameX::Inj"  Required="True"/>
         <Property Name="field4"  Required="True"/>
       </Message>
 

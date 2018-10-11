@@ -48,12 +48,16 @@ class ModelLoader(object):
         self.processMessageElements(namespaceEl, resolvedNamespace)
         self.processImportElements(namespaceEl, resolvedNamespace)
 
-    def processIncludedFiles(self):
+    def prepareDataPass(self):
         for includedFile in self.includedFiles:
             if hasattr(includedFile.Schema, 'Namespace'):
                 for namespace in includedFile.Schema.Namespace:
                     self.processNamespace(namespace)
 
+    def validateDataPass(self):
+        pass
+
+    def linkDataPass(self):
         for resolvedNamespace, enumElements in self.namespacesWithEnumerations:
             self.processEnumerations(resolvedNamespace, enumElements)
 
@@ -63,6 +67,10 @@ class ModelLoader(object):
         for resolvedNamespace, messageElements in self.namespacesWithMessages:
             self.processMessages(resolvedNamespace, messageElements)
 
+    def processIncludedFiles(self):
+        self.prepareDataPass()
+        self.linkDataPass()
+        self.validateDataPass()
 
     def processFields(self, namespace, fieldElements):
         for fieldElement in fieldElements:
@@ -98,12 +106,19 @@ class ModelLoader(object):
             namespace.addMessage(message)
 
     def processMessageProperties(self, namespace, message, messageElement):
-        if hasattr(messageElement, 'Property'):
-            for property in messageElement.Property:
-                name = property["Name"]
-                required = property["Required"]
-                defaultValue = property["Default"]
-                message.addProperty( name, required)
+        for el in  messageElement.get_elements():
+            if el._name == 'Property':
+                name = el["Name"]
+                required = el["Required"]
+                defaultValue = el["Default"]
+                message.addProperty( model.property.Property(name, required, defaultValue) )
+            elif el._name == 'Injects':
+                name = el["Name"]
+                message.addProperty( model.property.InjectionProperty(name))
+            elif el._name == 'Vector':
+                required = el["Required"]
+                name = el["Name"]
+                message.addProperty( model.property.VectorProperty(name,required))
 
     def processMethods(self, modelObj, element):
         if hasattr(element, 'Method'):

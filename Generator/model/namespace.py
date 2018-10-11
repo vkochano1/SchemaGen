@@ -27,6 +27,8 @@ class Namespace(object):
 
     def __repr__(self):
         return str(self.fieldByName) + " , " + str(self.messagesByName)
+    def hasElements(self):
+        return 0 < len(self.enumerations) + len(self.messagesByName) + len(self.fieldByName)
 
     def addField(self, field):
         """Add field to namespace"""
