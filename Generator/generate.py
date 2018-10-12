@@ -8,7 +8,7 @@ import cogapp
 import logging
 import utils
 
-format = '%(name)s:%(levelname)-8s: %(message)s'
+format = '%(name)-20s:%(levelname)-8s: %(message)s'
 logging.basicConfig(level=logging.DEBUG, format = format)
 genApp = cogapp.Cog()
 genApp.options.bDeleteCode = True
@@ -22,8 +22,11 @@ model = loader.to_model.ModelLoader('test/data.xml',env).modelNamespaces
 prefix = 'test/out/'
 
 for _, namespace in model.namespaces.iteritems():
+    print str(namespace)
+
     if not namespace.hasElements():
         continue
+
     dirMsgs = utils.NamespacePath.createOutDirectory(prefix, namespace, 'Messages' );
     dirEnums = utils.NamespacePath.createOutDirectory(prefix, namespace, 'Enumerations' );
     dirFields = utils.NamespacePath.createOutDirectory(prefix, namespace, 'Fields' );

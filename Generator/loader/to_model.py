@@ -97,8 +97,12 @@ class ModelLoader(object):
             tag = messageElement["Tag"]
             isAbstract = messageElement["Abstract"] or False
             basename = messageElement["Extends"]
+            injects = messageElement["Injects"]
 
             message = model.message.Message(name, tag, namespace, basename, isAbstract);
+            if injects != None:
+                message.addProperty( model.property.InjectionProperty(injects))
+
             self.processMessageProperties(namespace, message, messageElement)
             self.processMethods(message, messageElement)
             self.processConstructorBody(message, messageElement)
@@ -117,7 +121,7 @@ class ModelLoader(object):
                 message.addProperty( model.property.InjectionProperty(name))
             elif el._name == 'Vector':
                 required = el["Required"]
-                name = el["Name"]
+                name = el["DataType"]
                 message.addProperty( model.property.VectorProperty(name,required))
 
     def processMethods(self, modelObj, element):

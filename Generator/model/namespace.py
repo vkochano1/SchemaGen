@@ -23,10 +23,13 @@ class Namespace(object):
         self.importParentNamespaces_()
 
     def __str__(self):
-        return '\n'.join([str(f) for x, f in self.messagesByName.iteritems()])
+        strCurNamespace  = '\n[\n' + ",\n ".join( str(msg) for name, msg in self.messagesByName.iteritems() ) + '\n]\n'
+        strSubNamespaces = '\n[\n' + ', '.join(str(namespace) for namespace in self.subNamespaces.iteritems()) +'\n]\n'
+        return  "\n{\n namespace:'%s',\n messages:%s,\n namespaces:%s\n }\n" % (self.fullName, strCurNamespace, strSubNamespaces)
 
     def __repr__(self):
-        return str(self.fieldByName) + " , " + str(self.messagesByName)
+        return str(self)
+
     def hasElements(self):
         return 0 < len(self.enumerations) + len(self.messagesByName) + len(self.fieldByName)
 
@@ -98,7 +101,6 @@ class Namespace(object):
         (prefix, leafName) = utils.NamespacePath.splitFullName(name)
         self.logger.debug('Resolving enum %s'  % (str(name)))
         resolved = self.resolveByName_(leafName, prefix, "enumerations", set())
-        self.logger.debug('Resolved enum %s for %s'  % (str(resolved) , str(name)) )
         return resolved
 
     def resolveMessageByName(self, name):
@@ -106,7 +108,6 @@ class Namespace(object):
         self.logger.debug('Resolving message %s'  % (str(name)))
         (prefix, leafName) = utils.NamespacePath.splitFullName(name)
         resolved = self.resolveByName_(leafName, prefix, "messagesByName", set())
-        print 'Resolved message %s for %s'  % (str(resolved) , str(name))
         return resolved
 
     def resolveFieldByName(self, name):
@@ -114,7 +115,6 @@ class Namespace(object):
         self.logger.debug('Resolving field %s'  % (str(name)))
         (prefix, leafName) = utils.NamespacePath.splitFullName(name)
         resolved =  self.resolveByName_(leafName, prefix, "fieldByName", set())
-        self.logger.debug('Resolved field %s for %s'  % (str(resolved) , str(name)) )
         return resolved
 
     def resolveLinks(self, namespaces):
@@ -196,9 +196,3 @@ class Namespaces(object):
     def resolveLinks(self):
         for name, namespace in self.namespaces.iteritems():
             namespace.resolveLinks(self.namespaces)
-
-    def __str__(self):
-        return '\n-----------------------\n'.join( str(namespace) for name, namespace in self.namespaces.iteritems() )
-
-    def __repr__(self):
-        return '\n'.join( str(namespace) for name, namespace in self.namespaces.iteritems() )

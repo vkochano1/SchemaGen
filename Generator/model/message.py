@@ -2,16 +2,16 @@ import property
 import logging
 
 class Message(object):
-    def __init__(self, name, tag, namespace, basename = None, Abstract = False,  type = None ):
+    def __init__(self, name, tag, namespace, basename = None, isAbstract = False, isPolimorphic = False ):
         self.logger = logging.getLogger(__name__)
         self.name         = name
         self.tag          = tag
-        self.type         = type
         self.namespace    = namespace
         self.basename     = basename
         self.baseMessage  = None
         self.propertyByName =  {}
-        self.Abstract    = Abstract
+        self.isAbstract    = isAbstract
+        self.isPolimorphic = isPolimorphic
         self.props = []
         self.injections = []
         self.constructor_body = None;
@@ -76,11 +76,15 @@ class Message(object):
         self.baseMessage = self.resolveBase()
         self.resolveProps()
 
-
     def __str__(self):
-        s = '\n'.join( [ str(j) for i, j in self.propertyByName.iteritems() ])
-        s = s + '\n'.join( [ str(method) for method in self.methods ])
-        return self.namespace.fullName + '::' + self.name + "\n"+ s
+        sprops ='\n[\n' +  '\n,'.join( [ str(j) for i, j in self.propertyByName.iteritems() ]) + '\n]\n'
+        smethods = '\n[\n' + ',\n'.join( [ str(method) for method in self.methods ]) + '\n]\n'
+        return "\n{\n message:'%s'\n base='%s',\n props:%s,\n is_vector:%s,\n methods:%s\
+,\n constructor:'%s',\n is_abstract:'%s',\n is_polimorphic:'%s'\n }\n\
+        " % (self.namespace.fullName + '::' + self.name
+             , str(self.baseMessage), sprops
+             , str(self.isVector), smethods, str(self.constructor_body)
+             , str(self.isAbstract), str(self.isPolimorphic))
 
     def __repr__(self):
         return str(self.__dict__)
