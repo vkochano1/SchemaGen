@@ -1,39 +1,29 @@
 import __future__
 
 import os
-import loader.to_model
+import loader.schema
 import loader.environment
 import loader.data_type
+import loader.project
 import cogapp
 import logging
 import utils
 
 genApp = cogapp.Cog()
 genApp.options.bDeleteCode = True
-env = loader.environment.Environment()
-env.addIncludePath('./')
-env.addIncludePath('./test')
 
-class Config(object):
-    def __init__(self):
-        self.REVISION = "1234"
-        format = '%(name)-20s:%(levelname)-8s: %(message)s'
-        logging.basicConfig(level=logging.DEBUG, format = format)
-
-    def needToRenderNamespace(self, namespace):
-        return not namespace.fullName.startswith("Z::F")
-
-cfg = Config()
-l = loader.data_type.Loader()
-model = loader.to_model.ModelLoader('test/data.xml',env).modelNamespaces
-
-prefix = 'test/out/'
+project = loader.project.Loader('project.xml')
+project.load()
+schemaLoader, cfg = project.schemas[0]
+schemaLoader.load()
+model = schemaLoader.schema
 
 for _, namespace in model.namespaces.iteritems():
 
     if not namespace.hasElements() or not cfg.needToRenderNamespace(namespace):
         continue
 
+    prefix = cfg.outDir
     dirMsgs = utils.NamespacePath.createOutDirectory(prefix, namespace, 'Messages' );
     dirEnums = utils.NamespacePath.createOutDirectory(prefix, namespace, 'Enumerations' );
     dirFields = utils.NamespacePath.createOutDirectory(prefix, namespace, 'Fields' );

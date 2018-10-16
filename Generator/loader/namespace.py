@@ -5,22 +5,19 @@ import loader.data_type
 import loader.message
 import loader.field
 import loader.enumeration
+import utils
 
 class Loader(object):
     @staticmethod
-    def loadNamespace(modelNamespaces, namespaceEl):
-        name = namespaceEl["Name"]
-        return modelNamespaces.createOrGet(name)[-1]
-
-    @staticmethod
-    def preload(modelNamespaces, namespaceEl):
-        ns = Loader.loadNamespace(modelNamespaces, namespaceEl)
+    def preload(modelNamespaces, namespaceEl, parentNamespaceStr):
+        fullName = utils.NamespacePath.concatNamespaces(parentNamespaceStr, namespaceEl["Name"])
+        ns = modelNamespaces.createOrGet(fullName)[-1]
         Loader.processImportElements(namespaceEl, ns)
+        return fullName
 
     @staticmethod
-    def load(modelNamespaces, namespaceEl):
-        resolvedNamespace = Loader.loadNamespace(modelNamespaces, namespaceEl)
-        #Loader.processImportElements(namespaceEl, resolvedNamespace)
+    def load(modelNamespaces, namespaceEl, fullName):
+        resolvedNamespace = modelNamespaces.createOrGet(fullName)[-1]
 
         loader.data_type.Loader().processDataTypeElements(namespaceEl)
         Loader.processEnumerations(namespaceEl, resolvedNamespace)
@@ -31,9 +28,9 @@ class Loader(object):
     @staticmethod
     def processImportElements(currentEl, namespace):
         if hasattr(currentEl, 'Import'):
-                for imp in currentEl.Import:
-                    resolvedImportedNamespaceName = imp["Namespace"]
-                    namespace.importNamespace(resolvedImportedNamespaceName)
+            for imp in currentEl.Import:
+                resolvedImportedNamespaceName = imp["Namespace"]
+                namespace.importNamespace(resolvedImportedNamespaceName)
 
     @staticmethod
     def processFields(currentEl, namespace):
