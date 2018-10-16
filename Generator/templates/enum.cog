@@ -1,16 +1,268 @@
+#pragma once
+
+#include <type_traits>
+#include <limits>
+#include <brigand/sequences/set.hpp>
+
 [[[cog
-        cog.outl("class %s" % enum.name)
+import renderers.namespace
+import renderers.common
+import renderers.enumeration
+
+enumRenderer = renderers.enumeration.Renderer(model,enum)
+commonRenderer = renderers.common.Renderer(model, config)
+nsRenderer = renderers.namespace.Renderer(model, enum.namespace)
+
+cog.outl(nsRenderer.generateNamespaceBegin())
+]]]
+[[[end]]]
+[[[cog
+        cog.outl("class {name} : public ::Data::EnumerationType".format(name = enum.name))
 ]]]
 [[[end]]]
 {
 public:
-    enum Enumeration
+
+    [[[cog
+    cog.outl(commonRenderer.generateRevision())
+    ]]]
+    [[[end]]]
+
+    using TypeDescriptor = Lib::TypeDescriptor
+    <
+    [[[cog
+    cog.outl("{name}, Lib::EnumerationType, Lib::EnumerationType, true, true".format(name = enum.name))
+    ]]]
+    [[[end]]]
+    >;
+
+    [[[cog
+    storageType = enum.storageType if enum.storageType else "Lib::Integer"
+    cog.outl("enum Enumeration : {storageType}".format(storageType = storageType))
+    ]]]
+    [[[end]]]
     {
         [[[cog
-           import renderers.enumeration
-           r = renderers.enumeration.Renderer(model,enum)
-           cog.outl(r.generateEnumValues())
+           cog.outl(enumRenderer.generateEnumValues())
         ]]]
         [[[end]]]
     };
+
+    using DataType = Enumeration;
+
+    using StorageType = std::underlyining_type< Enumeration>;
+
+    using ValueSet_t = std::brigand_set
+    <
+     [[[cog
+        pattern = ",\n".join( ["std::integral_constant<StorageType,%s>"] * enum.valCount )
+        cog.outl(enumRenderer.applyEnumNamesToString(pattern))
+     ]]]
+     [[[end]]]
+    >;
+
+    using ShortName_t = Lib::string_t
+    <
+     [[[cog
+        cog.outl(commonRenderer.genCharList(enum.name))
+     ]]]
+     [[[end]]]
+    >;
+
+    using Name_t = Lib::string_t
+    <
+    [[[cog
+       cog.outl(commonRenderer.genCharList(enum.fullName))
+    ]]]
+    [[[end]]]
+    >;
+
+    [[[cog
+    cog.outl("{name} () {{ _value = Unk; }}".format(name=enum.name));
+    cog.outl("{name} (Enumeration value) {{ _value == value; }}".format(name=enum.name));
+    ]]]
+    [[[end]]]
+
+    operator Enumeration () const { return _value; }
+    operator Lib::Integer () const { return _value; }
+
+    void clear() { _value = Unk; }
+    bool empty() const { return Unk == _value; }
+
+    [[[cog
+      cog.outl("""const constexpr size_t countValue() const {{ return {count}; }}""".format(count = enum.valCount))
+    ]]]
+    [[[end]]]
+    constexpr const char * name      () { return Name_t::c_str(); }
+    constexpr const char * shortName () { return ShortName_t::c_str(); }
+
+    void validate ()
+    {
+        valueName();
+    }
+
+    const char * valueName()
+    {
+        switch(_value)
+        {
+            [[[cog
+              pattern = "\n".join( ["case %s: return %s;"] * enum.valCount )
+              cog.outl(enumRenderer.applyEnumNameValsToString(pattern))
+            ]]]
+            [[[end]]]
+            default: break;
+        };
+
+        LIB_THROW
+        (
+          std::invalid_argument,
+          [[[cog
+            cog.outl("\"{name} value <\" << Lib::Integer (_value) << \"> is invalid\"".format(name=enum.name))
+          ]]]
+          [[[end]]]
+        );
+    }
+
+    Lib::String toString() const
+    {
+      return valueName();
+    }
+
+    [[[cog
+    cog.outl("{name} & operator = (const char * valueName)".format(name=enum.name))
+    ]]]
+    [[[end]]]
+    {
+      fromString (valueName);
+
+      return *this;
+    }
+
+    [[[cog
+    cog.outl("{name} & fromString (const Lib::String & value, ParsingFormat::Enumeration format = ParsingFormat::ParseName)".format(name=enum.name))
+    ]]]
+    [[[end]]]
+    {
+      return fromString (value.c_str(), format);
+    }
+
+    [[[cog
+    cog.outl("{name} & fromString (const char * value, ParsingFormat::Enumeration format = ParsingFormat::ParseName)".format(name=enum.name))
+    ]]]
+    [[[end]]]
+    {
+      Enumeration result = Unk;
+      if ( ParsingFormat::ParseName == format )
+      {
+
+        switch(string_hash(0, value))
+        {
+            [[[cog
+              pattern = """case string_hash(0, "{name}"): if(strncmp ({name}, value, {len} )) result = {value}; break;"""
+              for name, value in enum.nameValueArr:
+                out = pattern.format(name = enumRenderer.genRightPaddedName(name), value = value, len = str(len(name)))
+                cog.outl(out)
+            ]]]
+            [[[end]]]
+        };
+      }
+      else
+      {
+        if(value &&  value[1] == 0)
+        {
+          result = static_cast<Enumeration> (value[1]);
+          validate();
+        }
+      }
+      return result;
+    }
+
+    template<typename F, typename ...ARGS>
+    static bool for_each( F && f,ARGS && ...args )
+    {
+      [[[cog
+        pattern = "if( !f (%s, args...) ) return false;\n" * enum.valCount
+        cog.outl(enumRenderer.applyEnumNamesToString(pattern))
+      ]]]
+      [[[end]]]
+      return true;
+    }
+
+    size_t valueOrdinal() const
+    {
+      switch(_value)
+      {
+          [[[cog
+            out = ''
+            numElements = enum.valCount
+            for i in range(numElements):
+              out = out + "case %s: return %s;\n" % ("%s", str(i))
+            cog.outl(enumRenderer.applyEnumNamesToString(out))
+          ]]]
+          [[[end]]]
+          default: break;
+      };
+
+      LIB_THROW
+      (
+        std::invalid_argument,
+        [[[cog
+          cog.outl("\"{name} value <\" << Lib::Integer (_value) << \"> is invalid\"".format(name=enum.name))
+        ]]]
+        [[[end]]]
+      );
+    }
+
+    static
+    Enumeration at(size_t ordinal)
+    {
+      Enumeration value = Unk;
+      switch(ordinal)
+      {
+        [[[cog
+          out = ''
+          for i in range(enum.valCount):
+            out = out + "case %s: return %s;\n" % (str(i), "%s")
+
+          cog.outl(enumRenderer.applyEnumNamesToString(out))
+        ]]]
+        [[[end]]]
+        default:
+          LIB_THROW
+          (
+            std::invalid_argument,
+            [[[cog
+            cog.outl("\"{name} ordinal <\" << Lib::Integer (long(ordinal)) << \"> is invalid\"".format(name=enum.name))
+            ]]]
+            [[[end]]]
+          );
+      }
+
+      return value;
+    }
+    [[[cog
+    defaultStreamOutOp = """
+    friend std::ostream & operator << (std::ostream& os, const {name} & field)
+    {{
+      Lib::FieldOp::Dump::dumpEnumeration (field, os);
+
+      return os;
+    }}"""
+    if not enum.hasCustomStreamOut:
+      cog.outl(defaultStreamOutOp.format(name = enum.name), dedent = True)
+    ]]]
+    [[[end]]]
+
+    [[[cog
+      for _, decl in enum.methods:
+        cog.outl(decl);
+    ]]]
+    [[[end]]]
+    private:
+        Enumeration _value;
 };
+
+[[[cog
+cog.outl(nsRenderer.generateNamespaceEnd())
+]]]
+[[[end]]]

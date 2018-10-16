@@ -3,14 +3,20 @@ import renderers.message
 import renderers.namespace
 
 messageRenderer = renderers.message.Renderer(model,msg)
-namespaceRenderer = renderers.namespace.Renderer(model,msg.namespace)
+nsRenderer = renderers.namespace.Renderer(model,msg.namespace)
 ]]]
 [[[end]]]
 #paragma once
 
 [[[cog
 cog.outl(messageRenderer.generateIncludes())
-cog.outl(namespaceRenderer.generateNamespaceBegin())
-cog.outl(namespaceRenderer.generateNamespaceEnd())
+cog.outl(nsRenderer.generateNamespaceBegin())
+]]]
+[[[end]]]
+
+
+
+[[[cog
+cog.outl(nsRenderer.generateNamespaceEnd())
 ]]]
 [[[end]]]

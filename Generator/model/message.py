@@ -80,7 +80,7 @@ class Message(object):
         sprops ='\n[\n' +  '\n,'.join( [ str(j) for i, j in self.propertyByName.iteritems() ]) + '\n]\n'
         smethods = '\n[\n' + ',\n'.join( [ str(method) for method in self.methods ]) + '\n]\n'
         return "\n{\n message:'%s'\n base='%s',\n props:%s,\n is_vector:%s,\n methods:%s\
-,\n constructor:'%s',\n is_abstract:'%s',\n is_polimorphic:'%s'\n }\n\
+,\n constructor:'%s',\n is_abstract:'%s',\n is_polimorphic:'%s'\n}\n\
         " % (self.namespace.fullName + '::' + self.name
              , str(self.baseMessage), sprops
              , str(self.isVector), smethods, str(self.constructor_body)

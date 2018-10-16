@@ -11,7 +11,10 @@ def singleton(cls):
 class NamespacePath(object):
     @staticmethod
     def createOutDirectory(prefix, namespace, suffix):
-        dir = os.path.join(prefix, '/'.join(namespace.components),  suffix)
+        components = namespace.components
+        if components[0] == '':
+            components = components[1:]
+        dir = os.path.join(prefix, '/'.join(components),  suffix)
 
         if not os.path.exists(dir):
             os.makedirs(dir)
@@ -23,6 +26,8 @@ class NamespacePath(object):
 
     @staticmethod
     def componentsToPath(components):
+        if components[0] == '':
+            components = components[1:]
         return '::'.join(components)
 
     @staticmethod

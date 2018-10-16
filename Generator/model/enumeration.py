@@ -1,12 +1,18 @@
+import utils
+
 class Enumeration(object):
-    def __init__(self, name, namespace, nameValueDict):
+    def __init__(self, name, namespace, nameValueArr, storageType = None):
         self.name =  name
-        self.nameValueDict = dict ( {(k, v.strip("''")) for k, v in nameValueDict.iteritems()} )
+        self.nameValueArr = nameValueArr
         self.namespace = namespace
         self.isIntEnum = True
         self.hasUnk = False
+        self.storageType = storageType
+        self.fullName = utils.NamespacePath.concatNamespaces(namespace.fullName, self.name)
+        self.hasCustomStreamOut = None
+        self.methods = []
 
-        for name, value in nameValueDict.iteritems():
+        for name, value in nameValueArr:
             if self.isIntEnum:
                 try:
                     tmp = int(value)
@@ -14,6 +20,17 @@ class Enumeration(object):
                     self.isIntEnum = False
             if name == "Unk":
                 self.hasUnk  = True
+
+        if self.hasUnk == False:
+            self.nameValueArr.insert(0, ('Unk',-99999) if self.isIntEnum else ('Unk',"'?'") )
+
+        self.nameValueDict = dict (self.nameValueArr)
+        self.valCount = len(self.nameValueDict)
+
+    def addMethod(self, method):
+        if method [0] == 'operator <<':
+            self.hasCustomStreamOut = True
+        self.Methods.append(method)
 
     def __str__(self):
         items = ", ".join( [ "%s:'%s'" % (str(k), str(v)) for k, v in self.nameValueDict.iteritems()] )

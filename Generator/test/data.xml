@@ -5,30 +5,33 @@
 
 <!-- ddfdfdf
 -->
-  <Namespace Name="N">
+  <Namespace Name="Z">
 
 <Include File="data0.xml"/>
-    <Field Name="field4"  Tag="443478" DataType="F::En3"/>
-
+    <Field Name="field4"  Tag="443478" DataType="J::En10"/>
+<Field Name="field7"  Tag="443471" DataType="J::En10"/>
     <Enumeration Name="En2">
-      <Item Name="F2" Value="V2"/>
-      <Item Name="F3" Value="V3"/>
+      <Item Name="F2dfdfdf" Value="1"/>
+      <Item Name="F3" Value="5"/>
+      <Item Name="F3sssd" Value="6"/>
+
     </Enumeration>
   </Namespace>
 
-    <Namespace Name="N::F">
+    <Namespace Name="Z::F">
 
-      <Import Namespace="Z"/>
+      <Import Namespace="Z::G"/>
 
-      <Message Name="Message" Extends="G::NameX::Base" Tag="123">
-        <Property Name="G::NameX::field1" Required="True"/>
-        <Property Name="G::NameX::field2"  Required="True"/>
-        <Injects Name="G::NameX::Inj"  Required="True"/>
+      <Message Name="Message" Extends="NameX::Base" Tag="123">
+        <Property Name="NameX::field1" Required="True"/>
+        <Property Name="NameX::field2"  Required="True"/>
+        <Injects Name="NameX::Inj"  Required="True"/>
         <Property Name="field4"  Required="True"/>
+        <Property Name="Z::J::field10"  Required="True"/>
       </Message>
 
       <Enumeration Name="En3">
-        <Item Name="F2" Value="V2"/>
+        <Item Name="F2" Value="'Z'"/>
       </Enumeration>
 
     </Namespace>

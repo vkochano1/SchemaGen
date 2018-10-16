@@ -9,7 +9,7 @@ class Namespace(object):
         self.parentNamespace = parentNamespace
         self.components = self.resolvefullPath_()
         self.subNamespaces = {}
-        self.fullName = '::'.join(self.components)
+        self.fullName = utils.NamespacePath.componentsToPath(self.components)
 
         self.enumerations = {}
         self.fieldByName  = {}
@@ -22,10 +22,12 @@ class Namespace(object):
         self.importedNamespaceNames = set()
         self.importParentNamespaces_()
 
+        self.logger.error('Created namespace %s' % (self.fullName))
+
     def __str__(self):
         strCurNamespace  = '\n[\n' + ",\n ".join( str(msg) for name, msg in self.messagesByName.iteritems() ) + '\n]\n'
         strSubNamespaces = '\n[\n' + ', '.join(str(namespace) for namespace in self.subNamespaces.iteritems()) +'\n]\n'
-        return  "\n{\n namespace:'%s',\n messages:%s,\n namespaces:%s\n }\n" % (self.fullName, strCurNamespace, strSubNamespaces)
+        return  "\n{\n namespace:'%s',\n messages:%s,\n namespaces:%s\n}\n" % (self.fullName, strCurNamespace, strSubNamespaces)
 
     def __repr__(self):
         return str(self)
@@ -123,7 +125,15 @@ class Namespace(object):
 
         for name in self.importedNamespaceNames:
             self.logger.debug('Trying to import namespace %s' % (name))
-            resolved = namespaces.get(name)
+            #resolved = namespaces.get(name)
+            resolved = None
+
+            for _, parentNamespace in  self.importedNamespaces.iteritems():
+                lookupName = utils.NamespacePath.concatNamespaces(parentNamespace.fullName, name)
+                resolved = namespaces.get(lookupName)
+                if resolved != None:
+                    break
+
             if resolved == None:
                 self.logger.error('Failed to import namespace %s' % (name))
                 raise Exception('Resolution failure')
@@ -158,6 +168,7 @@ class Namespace(object):
 class Namespaces(object):
     def __init__(self):
         self.namespaces = {}
+        self.namespaces[''] = Namespace('', None)
 
     def createSubNamespaces(self, path, parent):
         namespace = parent
@@ -177,17 +188,17 @@ class Namespaces(object):
 
     def createOrGet(self, namespaceName):
         components = namespaceName.split('::')
-        currentPath = []
-        parentNamespace = None
-        namespace = None
+        currentPathComponents = []
+        parentNamespace = self.namespaces['']
+        namespace = parentNamespace
         for component in components:
-            currentPath.append(component)
-            pathStr = "::".join(currentPath)
+            currentPathComponents.append(component)
+            pathStr = utils.NamespacePath.componentsToPath(currentPathComponents)
             parentNamespace = namespace
             namespace = self.namespaces.get(pathStr)
 
             if None == namespace:
-                suffixPath = components[len(currentPath)-1:]
+                suffixPath = components[len(currentPathComponents)-1:]
                 createdNamespaces = self.createSubNamespaces(suffixPath, parentNamespace)
                 return createdNamespaces
 

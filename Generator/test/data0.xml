@@ -1,13 +1,21 @@
 
 <Schema>
 
-<Include File="data.xml"/>
+<Namespace Name="Z::J">
+  <Enumeration Name="En10">
+    <Item Name="F10" Value="V10"/>
+  </Enumeration>
+
+  <Field Name="field10"  Tag="44566" DataType="En10"/>
+
+</Namespace>
+
+
   <Namespace Name="Z::G::NameX">
     <DataType Name="NT"/>
     <Field Name="field1" Tag="34" DataType="NT"/>
-    <Field Name="field2"  Tag="44444" DataType="Long"/>
     <Field Name="field3"  Tag="44" DataType="String"/>
-    <Field Name="field7"  Tag="4456" DataType="String"/>
+    <Field Name="field2"  Tag="444" DataType="String"/>
 
     <Message Name="Base" Tag="1236">
       <Property Name="field3" Required="True"/>
@@ -18,7 +26,7 @@
     </Message>
 
     <Enumeration Name="En">
-      <Item Name="F1" Value="V1"/>
+      <Item Name="F1" Value="'V'"/>
     </Enumeration>
 
   </Namespace>
