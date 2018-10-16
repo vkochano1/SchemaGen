@@ -58,4 +58,5 @@ class Loader(object):
                 if hasattr(project, 'PropertySets'):
                     for propSets in project.PropertySets:
                         if hasattr(propSets, 'PropertySet'):
-                                self.loadPropSet(propSets.PropertySet)
+                                for prop in propSets.PropertySet:
+                                    self.loadPropSet(prop)

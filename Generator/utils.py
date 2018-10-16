@@ -1,4 +1,5 @@
 import os
+
 def singleton(cls):
     instances = {}
     def wrapper(*args, **kwargs):

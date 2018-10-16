@@ -5,5 +5,12 @@
         <SchemaFile value="test/data.xml"/>
         <OutDir value="test/out"/>
     </PropertySet>
-  </PropertySets>
+
+    <PropertySet>
+        <IncludeDir value="./;./test"/>
+        <SchemaFile value="test/data.xml"/>
+        <OutDir value="test/out2"/>
+    </PropertySet>
+
+    </PropertySets>
 </Project>
