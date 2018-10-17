@@ -1,7 +1,7 @@
 import property
 import loader.common
 import model.namespace
-import loader.data_type
+import loader.datatype
 import loader.message
 import loader.field
 import loader.enumeration
@@ -19,11 +19,17 @@ class Loader(object):
     def load(modelNamespaces, namespaceEl, fullName):
         resolvedNamespace = modelNamespaces.createOrGet(fullName)[-1]
 
-        loader.data_type.Loader().processDataTypeElements(namespaceEl)
+        Loader.processDataTypeElements(namespaceEl,resolvedNamespace)
         Loader.processEnumerations(namespaceEl, resolvedNamespace)
         Loader.processFields(namespaceEl, resolvedNamespace)
         Loader.processMessages(namespaceEl, resolvedNamespace)
         return resolvedNamespace
+
+    @staticmethod
+    def processDataTypeElements(element, namespace):
+        if hasattr(element, 'DataType'):
+            for dataType in element.DataType:
+                namespace.addDataType(loader.datatype.Loader().load(namespace, dataType))
 
     @staticmethod
     def processImportElements(currentEl, namespace):

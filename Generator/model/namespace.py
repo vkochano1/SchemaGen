@@ -1,5 +1,6 @@
 import utils
 import logging
+import model.datatype
 
 class Namespace(object):
     def __init__(self, name, parentNamespace = None):
@@ -11,7 +12,12 @@ class Namespace(object):
         self.subNamespaces = {}
         self.fullName = utils.NamespacePath.componentsToPath(self.components)
 
+        # enumeration data types
         self.enumerations = {}
+
+        # all dataTypes including enumerations
+        self.dataTypes  = {}
+
         self.fieldByName  = {}
         self.messagesByName = {}
         self.fieldByTag   = {}
@@ -48,6 +54,12 @@ class Namespace(object):
     def addEnum(self, enumeration):
         """Add enumeration to namespace"""
         self.enumerations[enumeration.name] = enumeration
+        enumDataType = model.datatype.DataType(enumeration.name,enumeration.namespace, enumeration = enumeration)
+        self.addDataType(enumDataType)
+
+    def addDataType(self, dataType):
+        """Add datatype to namespace"""
+        self.dataTypes[dataType.name] = dataType
 
     def addSubNamespace(self, namespaceName):
         """Create all sub-namesapces for provided path"""
@@ -75,7 +87,7 @@ class Namespace(object):
         return currentNamespace
 
     def resolveByName_(self, nameToResolve, prefixPath, collectionName,  alreadyScanned):
-        """Generic element lookup for provided element"""
+        """Generic  lookup for provided element"""
         if self.fullName in alreadyScanned:
             return None
 
@@ -98,11 +110,11 @@ class Namespace(object):
 
         return resolved
 
-    def resolveEnumByName(self, name):
+    def resolveDataTypeByName(self, name):
         """Enum element lookup for provided enum name"""
         (prefix, leafName) = utils.NamespacePath.splitFullName(name)
         self.logger.debug('Resolving enum %s'  % (str(name)))
-        resolved = self.resolveByName_(leafName, prefix, "enumerations", set())
+        resolved = self.resolveByName_(leafName, prefix, "dataTypes", set())
         return resolved
 
     def resolveMessageByName(self, name):
@@ -163,47 +175,3 @@ class Namespace(object):
         while currentNamespace != None:
             self.importedNamespaces[currentNamespace.fullName] = currentNamespace
             currentNamespace = currentNamespace.parentNamespace
-
-
-class Namespaces(object):
-    def __init__(self):
-        self.namespaces = {}
-        self.namespaces[''] = Namespace('', None)
-
-    def createSubNamespaces(self, path, parent):
-        namespace = parent
-        createdNamespaces = []
-        for component in path:
-            parentNamespace = namespace
-            namespace = None
-            if parentNamespace == None:
-                namespace = Namespace(component, None)
-            else:
-                namespace = parentNamespace.addSubNamespace(component)
-
-            createdNamespaces.append(namespace)
-            self.namespaces[namespace.fullName] = namespace
-
-        return createdNamespaces
-
-    def createOrGet(self, namespaceName):
-        components = namespaceName.split('::')
-        currentPathComponents = []
-        parentNamespace = self.namespaces['']
-        namespace = parentNamespace
-        for component in components:
-            currentPathComponents.append(component)
-            pathStr = utils.NamespacePath.componentsToPath(currentPathComponents)
-            parentNamespace = namespace
-            namespace = self.namespaces.get(pathStr)
-
-            if None == namespace:
-                suffixPath = components[len(currentPathComponents)-1:]
-                createdNamespaces = self.createSubNamespaces(suffixPath, parentNamespace)
-                return createdNamespaces
-
-        return [namespace]
-
-    def resolveLinks(self):
-        for name, namespace in self.namespaces.iteritems():
-            namespace.resolveLinks(self.namespaces)

@@ -1,5 +1,5 @@
 import namespace
-import loader.data_type
+import loader.datatype
 import logging
 
 class Field(object):
@@ -13,7 +13,7 @@ class Field(object):
         self.logger.debug('Created field %s::%s ' % (myNamespace.fullName, self.name))
 
     def __str__(self):
-        return "\n{\n field:'%s::%s',\n tag:'%s',\n data_type:%s\n}\n" % (
+        return "\n{\n field:'%s::%s',\n tag:'%s',\n datatype:%s\n}\n" % (
         self.namespace.fullName,
         self.name,
         str(self.tag),
@@ -24,6 +24,6 @@ class Field(object):
         return str(self.__dict__)
 
     def resolveLinks(self):
-        self.dataType = self.namespace.resolveEnumByName(self.dataTypeName)
+        self.dataType = self.namespace.resolveDataTypeByName(self.dataTypeName)
         if self.dataType == None:
-            self.dataType = loader.data_type.Loader().dataTypeName[self.dataTypeName]
+            self.dataType = loader.datatype.Loader().lookUp(self.dataTypeName)

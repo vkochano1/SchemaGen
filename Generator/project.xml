@@ -1,16 +1,16 @@
-<Project>
+<codeSmith>
   <PropertySets>
     <PropertySet>
-        <IncludeDir value="./;./test"/>
-        <SchemaFile value="test/data.xml"/>
-        <OutDir value="test/out"/>
+        <IncludeDir name="./;./test"/>
+        <SchemaFile name="test/data.xml"/>
+        <OutDir name="test/out"/>
     </PropertySet>
 
     <PropertySet>
-        <IncludeDir value="./;./test"/>
-        <SchemaFile value="test/data.xml"/>
-        <OutDir value="test/out2"/>
+        <IncludeDir name="./;./test"/>
+        <SchemaFile name="test/data.xml"/>
+        <OutDir name="test/out2"/>
     </PropertySet>
 
     </PropertySets>
-</Project>
+</codeSmith>

@@ -20,6 +20,7 @@
 
     <Namespace Name="Z::F">
 
+      <Field Name="fieldN"  Tag="4434784" DataType="Z::G::NameX::NT"/>
       <Import Namespace="Z::G"/>
 
       <Message Name="Message" Extends="NameX::Base" Tag="123">
@@ -28,6 +29,8 @@
         <Injects Name="NameX::Inj"  Required="True"/>
         <Property Name="field4"  Required="True"/>
         <Property Name="Z::J::field10"  Required="True"/>
+        <Property Name="fieldN"  Required="True"/>
+
       </Message>
 
       <Enumeration Name="En3">

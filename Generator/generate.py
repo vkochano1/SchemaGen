@@ -2,7 +2,7 @@ import __future__
 
 import loader.schema
 import loader.environment
-import loader.data_type
+import loader.datatype
 import loader.project
 import renderers.schema
 
