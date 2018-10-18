@@ -1,7 +1,7 @@
 <codeSmith>
   <propertySets>
     <propertySet>
-        <property name="OutDir" >test/out</property>
+        <property name="OutputDir" >test/out</property>
         <property name="SchemaFile">test/data.xml</property>
         <property name="IncludeDir">./;./test</property>
     </propertySet>
