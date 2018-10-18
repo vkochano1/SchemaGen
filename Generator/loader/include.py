@@ -9,6 +9,7 @@ class IncludeFile(object):
         if hasattr(element, "Include"):
             for inclFile in element.Include:
                 name = inclFile['File']
+                name = name.replace("\\","/")
                 tmp = IncludeFile(name, env, processedFiles)
 
 
