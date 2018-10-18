@@ -1,0 +1,10 @@
+<codeSmith>
+  <PropertySets>
+    <PropertySet>
+        <property name="OutDir" >test/out</property>
+        <property name="SchemaFile">test/data.xml</property>
+        <property name="IncludeDir">./;./test</property>
+    </PropertySet>
+    
+    </PropertySets>
+</codeSmith>
