@@ -3,14 +3,19 @@ import loader.environment
 import loader.datatype
 import logging
 import untangle
+import os
 
 class Config(object):
-    def __init__(self, includeDirs, outDir, schemaFile, logName, skipNamespaces = ''):
-        self.REVISION = "12345"
-        self.includeDirs = [name.strip() for name in includeDirs.split(';')]
-        self.outDir = outDir
+    def __init__( self, projectDir
+                , includeDirs, outDir
+                , schemaFile, logName
+                , skipNamespaces = ''):
+        self.REVISION = "1"
+        self.projectDir = projectDir
+        self.includeDirs = [os.path.join(self.projectDir, name.strip()) for name in includeDirs.split(';')]
+        self.outDir = os.path.join(projectDir,outDir)
         self.schemaFile = schemaFile
-        self.logName = logName
+        self.logName = os.path.join(projectDir,logName)
         self.skipNamespaces = [name.strip() for name in skipNamespaces.split(';')]
         self.env = loader.environment.Environment()
 
@@ -28,6 +33,8 @@ class Loader(object):
     def __init__(self, projectFilePath):
         self.logger = logging.getLogger(__name__)
         loader.datatype.Loader()
+        projDir, filename = os.path.split(projectFilePath)
+        self.baseDir = os.path.abspath(projDir)
         self.projectFile = untangle.parse(projectFilePath)
         self.schemas = []
 
@@ -35,22 +42,23 @@ class Loader(object):
         includeDirs = ''
         schemaFile = None
         outDir = None
-        logName = None
+        logName = 'tmp.log'
         skipNamespaces = ''
 
-        for prop in propSet.get_elements():
-            if prop._name   == 'IncludeDir':
-                includeDirs = prop["name"] if prop["name"] else ''
-            elif prop._name == 'OutDir':
-                outDir = prop["name"]
-            elif prop._name == 'LogName':
+        for prop in propSet.property:
+            name = prop["name"]
+            if name  == 'IncludeDir':
+                includeDirs = prop.cdata if prop.cdata else ''
+            elif name == 'OutDir':
+                outDir = prop.cdata
+            elif name == 'LogName':
                 logName = prop["name"]
-            elif prop._name == 'SchemaFile':
-                schemaFile = prop["name"]
-            elif prop._name == 'SkipNamespaces':
-                skipNamespaces = prop["name"] if prop["name"] else ''
+            elif name == 'SchemaFile':
+                schemaFile = prop.cdata
+            elif name == 'SkipNamespaces':
+                skipNamespaces = prop.cdata if prop.cdata else ''
 
-        cfg = Config(includeDirs, outDir, schemaFile, logName, skipNamespaces)
+        cfg = Config(self.baseDir, includeDirs, outDir, schemaFile, logName, skipNamespaces)
         schemaLoader = loader.schema.Loader(schemaFile, cfg.env)
         self.schemas.append((schemaLoader, cfg))
 
@@ -60,5 +68,5 @@ class Loader(object):
                 if hasattr(project, 'PropertySets'):
                     for propSets in project.PropertySets:
                         if hasattr(propSets, 'PropertySet'):
-                                for prop in propSets.PropertySet:
-                                    self.loadPropSet(prop)
+                                for propSet in propSets.PropertySet:
+                                    self.loadPropSet(propSet)

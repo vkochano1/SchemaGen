@@ -15,10 +15,14 @@ class Loader(object):
         name = messageElement["Name"]
         tag = messageElement["Tag"]
         isAbstract = messageElement["Abstract"] or False
+        isPolymorphic = messageElement["Polymorphic"] or False
         basename = messageElement["Extends"]
         injects = messageElement["Injects"]
+        usingNamespace = messageElement["Using"]
 
-        message = model.message.Message(name, tag, namespace, basename, isAbstract);
+        message = model.message.Message(  name, tag, namespace
+                                        , basename, isAbstract, isPolymorphic
+                                        , usingNamespace);
         if injects != None:
             message.addProperty( model.property.InjectionProperty(injects))
 

@@ -1,8 +1,10 @@
 import property
 import logging
+import utils
 
 class Message(object):
-    def __init__(self, name, tag, namespace, basename = None, isAbstract = False, isPolimorphic = False ):
+    def __init__(self, name, tag, namespace, basename = None
+                ,isAbstract = False, isPolymorphic = False, usingNamespace = None ):
         self.logger = logging.getLogger(__name__)
         self.name         = name
         self.tag          = tag
@@ -11,7 +13,8 @@ class Message(object):
         self.baseMessage  = None
         self.propertyByName =  {}
         self.isAbstract    = isAbstract
-        self.isPolimorphic = isPolimorphic
+        self.isPolymorphic = isPolymorphic
+        self.usingNamespace = usingNamespace
         self.props = []
         self.injections = []
         self.constructor_body = None;
@@ -43,6 +46,14 @@ class Message(object):
 
         updated_props.extend(addedProps[::-1])
 
+    def resolveProp(self, name):
+        field = self.namespace.resolveFieldByName(name)
+        # fallback to message field
+        if field == None:
+            field = self.namespace.resolveMessageByName(name)
+
+        return field
+
     def resolveProps(self):
         updated_props = []
         for prop in self.props:
@@ -56,11 +67,13 @@ class Message(object):
             if prop.isVector == True:
                 self.isVector = True
 
-            field = self.namespace.resolveFieldByName(prop.name)
-            # fallback to message field
-            if field == None:
-                field = self.namespace.resolveMessageByName(prop.name)
+            field  = self.resolveProp(prop.name)
+            if not field and self.usingNamespace != None:
+                 field  = self.resolveProp(utils.NamespacePath.concatNamespaces(self.usingNamespace, prop.name))
 
+            if field == None:
+                raise Exception("Failed to resolve property %s for message %s" % (prop.name, self.name))
+                
             prop.linkField(field)
             self.propertyByName[field.name] = prop
             updated_props.append(prop)
@@ -80,11 +93,11 @@ class Message(object):
         sprops ='\n[\n' +  '\n,'.join( [ str(j) for i, j in self.propertyByName.iteritems() ]) + '\n]\n'
         smethods = '\n[\n' + ',\n'.join( [ str(method) for method in self.methods ]) + '\n]\n'
         return "\n{\n message:'%s'\n base='%s',\n props:%s,\n is_vector:%s,\n methods:%s\
-,\n constructor:'%s',\n is_abstract:'%s',\n is_polimorphic:'%s'\n}\n\
+,\n constructor:'%s',\n is_abstract:'%s',\n is_polymorphic:'%s'\n}\n\
         " % (self.namespace.fullName + '::' + self.name
              , str(self.baseMessage), sprops
              , str(self.isVector), smethods, str(self.constructor_body)
-             , str(self.isAbstract), str(self.isPolimorphic))
+             , str(self.isAbstract), str(self.isPolymorphic))
 
     def __repr__(self):
         return str(self.__dict__)

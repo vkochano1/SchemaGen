@@ -40,5 +40,10 @@ class Schema(object):
         return [namespace]
 
     def resolveLinks(self):
-        for name, namespace in self.namespaces.iteritems():
+        # All import namespaces must be resolved b4
+        # field/message resolution step
+        for _, namespace in self.namespaces.iteritems():
+            namespace.resolveImports(self.namespaces)
+
+        for _, namespace in self.namespaces.iteritems():
             namespace.resolveLinks(self.namespaces)

@@ -30,7 +30,7 @@ class Enumeration(object):
     def addMethod(self, method):
         if method [0] == 'operator <<':
             self.hasCustomStreamOut = True
-        self.Methods.append(method)
+        self.methods.append(method)
 
     def __str__(self):
         items = ", ".join( [ "%s:'%s'" % (str(k), str(v)) for k, v in self.nameValueDict.iteritems()] )

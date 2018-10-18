@@ -131,10 +131,7 @@ class Namespace(object):
         resolved =  self.resolveByName_(leafName, prefix, "fieldByName", set())
         return resolved
 
-    def resolveLinks(self, namespaces):
-        """Once all schema elements added to the model
-          object links can be populated """
-
+    def resolveImports(self, namespaces):
         for name in self.importedNamespaceNames:
             self.logger.debug('Trying to import namespace %s' % (name))
             #resolved = namespaces.get(name)
@@ -151,6 +148,10 @@ class Namespace(object):
                 raise Exception('Resolution failure')
 
             self.importedNamespaces[name] = resolved
+
+    def resolveLinks(self, namespaces):
+        """Once all schema elements added to the model
+          object links can be populated """
 
         for name, message in self.messagesByName.iteritems():
             message.resolveLinks()
