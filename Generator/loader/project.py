@@ -49,7 +49,7 @@ class Loader(object):
             name = prop["name"]
             if name  == 'IncludeDir':
                 includeDirs = prop.cdata if prop.cdata else ''
-            elif name == 'OutDir':
+            elif name == 'OutputDir':
                 outDir = prop.cdata
             elif name == 'LogName':
                 logName = prop["name"]
@@ -65,8 +65,8 @@ class Loader(object):
     def load(self):
         if hasattr(self.projectFile, 'codeSmith'):
             for project in self.projectFile.codeSmith:
-                if hasattr(project, 'PropertySets'):
-                    for propSets in project.PropertySets:
-                        if hasattr(propSets, 'PropertySet'):
-                                for propSet in propSets.PropertySet:
+                if hasattr(project, 'propertySets'):
+                    for propSets in project.propertySets:
+                        if hasattr(propSets, 'propertySet'):
+                                for propSet in propSets.propertySet:
                                     self.loadPropSet(propSet)
