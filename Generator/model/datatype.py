@@ -8,3 +8,4 @@ class DataType(object):
         self.namespace = namespace
         self.enumeration = enumeration
         self.isString = isString
+        self.isBoolean = (name == "Flag" or name == "Boolean")

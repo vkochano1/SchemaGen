@@ -13,6 +13,7 @@ class Config(object):
         self.REVISION = "1"
         self.projectDir = projectDir
         self.includeDirs = [os.path.join(self.projectDir, name.strip()) for name in includeDirs.split(';')]
+        self.includeDirs.append(projectDir)
         self.outDir = os.path.join(projectDir,outDir)
         self.schemaFile = schemaFile
         self.logName = os.path.join(projectDir,logName)
@@ -47,13 +48,13 @@ class Loader(object):
 
         for prop in propSet.property:
             name = prop["name"]
-            if name  == 'IncludeDir':
+            if name  == 'IncludePath':
                 includeDirs = prop.cdata if prop.cdata else ''
             elif name == 'OutputDir':
                 outDir = prop.cdata
             elif name == 'LogName':
                 logName = prop["name"]
-            elif name == 'SchemaFile':
+            elif name == 'Schema':
                 schemaFile = prop.cdata
             elif name == 'SkipNamespaces':
                 skipNamespaces = prop.cdata if prop.cdata else ''

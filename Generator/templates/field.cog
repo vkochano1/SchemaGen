@@ -1,13 +1,143 @@
-[[[cog
-import renderers.namespace
+#pragma once
 
-namespaceRenderer = renderers.namespace.Renderer(model,field.namespace)
+[[[cog
+
+import renderers.namespace
+import renderers.common
+import renderers.field
+
+commonRenderer = renderers.common.Renderer(model, config)
+nsRenderer = renderers.namespace.Renderer(model, field.namespace)
+fieldRenderer = renderers.field.Renderer(model, field)
+
+cog.outl(fieldRenderer.generateEnumIncludes())
+cog.outl(nsRenderer.generateNamespaceBegin())
+
 ]]]
 [[[end]]]
-#paragma once
+[[[cog
+dataType = field.dataType
+baseSimpleType = "" if dataType.isSimpleType else "Lib::SimpleType"
+
+cog.outl("class {name} : public {dataType} {additionalBases} ".format(
+          name = field.name
+          , dataType = dataType.name
+          ,additionalBases = fieldRenderer.genAdditionalBaseClasses() ))
+]]]
+[[[end]]]
+{
+public:
+
+    [[[cog
+     cog.outl("using Base = {dataType};".format(dataType = dataType.name))
+    ]]]
+    [[[end]]]
+
+    [[[cog
+      cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = str(field.tag)))
+    ]]]
+    [[[end]]]
+
+    [[[cog
+    cog.outl(commonRenderer.generateRevision())
+    ]]]
+    [[[end]]]
+
+    using TypeDescriptor = Lib::TypeDescriptor
+    <
+    [[[cog
+     cog.outl("{name}, {dataType}, Lib::SimpleType, true, {dataType}".format(name = field.name, dataType=dataType.name))
+    ]]]
+    [[[end]]]
+    >;
+
+    using ShortName_t = Lib::string_t
+    <
+     [[[cog
+        cog.outl(commonRenderer.genCharList(field.name))
+     ]]]
+     [[[end]]]
+    >;
+
+    using Name_t = Lib::string_t
+    <
+    [[[cog
+       cog.outl(commonRenderer.genCharList(field.fullName))
+    ]]]
+    [[[end]]]
+    >;
+
+    using Namespace_t = Lib::string_t
+    <
+    [[[cog
+       cog.outl(commonRenderer.genCharList(field.namespace.fullName))
+    ]]]
+    [[[end]]]
+    >;
+
+    static constexpr boost::int32_t tag () {return TAG;}
+    constexpr const char * name      () { return Name_t::c_str(); }
+    constexpr const char * shortName () { return ShortName_t::c_str(); }
+
+    [[[cog
+    cog.outl("{name} () {{}}".format(name=field.name))
+    ]]]
+    [[[end]]]
+
+    [[[cog
+    if dataType.isString:
+      cog.outl("""
+      {name} (const Lib::String& value): {dataType} (value) {{}}
+      {name} (const std::string& value): {dataType} (value) {{}}
+      {name} (const char* value): {dataType} (value) {{}}
+      {name} (const char* value, size_t length): {dataType} (value,length) {{}}
+
+      using {dataType}::operator=;
+
+      """.format(name=field.name, dataType=dataType.name), dedent = True)
+    elif dataType.isBoolean:
+      cog.outl("""
+      {name} (bool value): {dataType} (value) {{}}
+      """.format(name=field.name, dataType=dataType.name), dedent = True)
+    elif dataType.enumeration:
+      cog.outl("""
+      {name} ({dataType}::Enumeration value): {dataType} (value) {{}}
+      {name}& operator =  ({dataType}::Enumeration value)
+      {{
+        {dataType}::operator = (value);
+        return *this;
+      }}
+      """.format(name=field.name, dataType=dataType.name), dedent = True)
+    else:
+      cog.outl("""
+      {name} (const {dataType} & value): {dataType} (value) {{}}
+      """.format(name=field.name, dataType=dataType.name), dedent = True)
+    ]]]
+    [[[end]]]
+    [[[cog
+    cog.outl("""
+      {name}& operator = (const {dataType} & value)
+      {{
+        {dataType}::operator = (value);
+        return *this;
+      }}
+    """.format(name = field.name, dataType = dataType.name), dedent = True)
+    ]]]
+    [[[end]]]
+
+    [[[cog
+    cog.outl("friend std::ostream& operator << (std::ostream& os, const {name}& field )".format(name = field.name))
+    ]]]
+    [[[end]]]
+    {
+      Lib::FieldOp::Dump dumper(os);
+      dumper(field);
+
+      return os;
+    }
+};
 
 [[[cog
-cog.outl(namespaceRenderer.generateNamespaceBegin())
-cog.outl(namespaceRenderer.generateNamespaceEnd())
+cog.outl(nsRenderer.generateNamespaceEnd())
 ]]]
 [[[end]]]

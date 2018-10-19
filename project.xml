@@ -2,8 +2,8 @@
   <propertySets>
     <propertySet>
         <property name="OutputDir" >test/out</property>
-        <property name="SchemaFile">test/data.xml</property>
-        <property name="IncludeDir">./;./test</property>
+        <property name="Schema">test/data.xml</property>
+        <property name="IncludePath">./;./test</property>
     </propertySet>
     
     </propertySets>

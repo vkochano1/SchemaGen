@@ -20,6 +20,7 @@ class Message(object):
         self.constructor_body = None;
         self.methods = [];
         self.isVector = False
+        self.fullName = utils.NamespacePath.concatNamespaces(namespace.fullName, self.name)
 
         self.logger.debug("Created message %s::%s(%s)" %(self.namespace.fullName, self.name, str(self.tag)))
 
@@ -73,7 +74,7 @@ class Message(object):
 
             if field == None:
                 raise Exception("Failed to resolve property %s for message %s" % (prop.name, self.name))
-                
+
             prop.linkField(field)
             self.propertyByName[field.name] = prop
             updated_props.append(prop)

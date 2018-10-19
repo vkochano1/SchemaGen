@@ -11,7 +11,7 @@ class Namespace(object):
         self.components = self.resolvefullPath_()
         self.subNamespaces = {}
         self.fullName = utils.NamespacePath.componentsToPath(self.components)
-
+        self.isSimpleType = True
         # enumeration data types
         self.enumerations = {}
 
@@ -28,7 +28,7 @@ class Namespace(object):
         self.importedNamespaceNames = set()
         self.importParentNamespaces_()
 
-        self.logger.error('Created namespace %s' % (self.fullName))
+        self.logger.debug('Created namespace %s' % (self.fullName))
 
     def __str__(self):
         strCurNamespace  = '\n[\n' + ",\n ".join( str(msg) for name, msg in self.messagesByName.iteritems() ) + '\n]\n'
@@ -144,8 +144,8 @@ class Namespace(object):
                     break
 
             if resolved == None:
-                self.logger.error('Failed to import namespace %s' % (name))
-                raise Exception('Resolution failure')
+                self.logger.error('Failed to import namespace %s trying to proceeed anyway' % (name))
+                continue
 
             self.importedNamespaces[name] = resolved
 
