@@ -12,17 +12,21 @@ class Loader(object):
 
     @staticmethod
     def load(namespace, messageElement):
-        name = messageElement["Name"]
-        tag = messageElement["Tag"]
-        isAbstract = messageElement["Abstract"] or False
-        isPolymorphic = messageElement["Polymorphic"] or False
-        basename = messageElement["Extends"]
         injects = messageElement["Injects"]
-        usingNamespace = messageElement["Using"]
+        
+        msgArgs = {
+        "name" : messageElement["Name"],
+        "namespace" : namespace,
+        "tag" : messageElement["Tag"],
+        "isAbstract" : messageElement["Abstract"] or False,
+        "isPolymorphic" : messageElement["Polymorphic"] or False,
+        "basename" : messageElement["Extends"],
+        "usingNamespace" : messageElement["Using"],
+        "alias" : messageElement["Alias"],
+        "displayName" : messageElement["DisplayName"]
+        }
 
-        message = model.message.Message(  name, tag, namespace
-                                        , basename, isAbstract, isPolymorphic
-                                        , usingNamespace);
+        message = model.message.Message(**msgArgs);
         if injects != None:
             message.addProperty( model.property.InjectionProperty(injects))
 

@@ -4,16 +4,19 @@ import logging
 import utils
 
 class Field(object):
-    def __init__(self, fullName, tag, datatype, myNamespace, attrs):
+    def __init__(self, name, tag, dataType, namespace, attrs = None, displayName = None):
         self.logger = logging.getLogger(__name__)
+        self.objType = 'Field'
+        self.name = name
+        self.className = 'Field'+ self.name
+        self.displayName = displayName
         self.tag = tag
-        self.dataTypeName = datatype
+        self.dataTypeName = dataType
         self.dataType = None
         self.attrs = attrs
-        self.namespace = myNamespace
-        self.name = fullName
+        self.namespace = namespace
         self.fullName = utils.NamespacePath.concatNamespaces(self.namespace.fullName, self.name)
-        self.logger.debug('Created field %s::%s ' % (myNamespace.fullName, self.name))
+        self.logger.debug('Created field %s::%s ' % (namespace.fullName, self.name))
 
     def __str__(self):
         return "\n{\n field:'%s::%s',\n tag:'%s',\n datatype:%s\n}\n" % (

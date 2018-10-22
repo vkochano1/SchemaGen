@@ -20,8 +20,8 @@ dataType = field.dataType
 baseSimpleType = "" if dataType.isSimpleType else "Lib::SimpleType"
 
 cog.outl("class {name} : public {dataType} {additionalBases} ".format(
-          name = field.name
-          , dataType = dataType.name
+          name = field.className
+          , dataType = fieldRenderer.dataTypeName
           ,additionalBases = fieldRenderer.genAdditionalBaseClasses() ))
 ]]]
 [[[end]]]
@@ -29,7 +29,7 @@ cog.outl("class {name} : public {dataType} {additionalBases} ".format(
 public:
 
     [[[cog
-     cog.outl("using Base = {dataType};".format(dataType = dataType.name))
+     cog.outl("using Base = {dataType};".format(dataType = fieldRenderer.dataTypeName))
     ]]]
     [[[end]]]
 
@@ -46,7 +46,7 @@ public:
     using TypeDescriptor = Lib::TypeDescriptor
     <
     [[[cog
-     cog.outl("{name}, {dataType}, Lib::SimpleType, true, {dataType}".format(name = field.name, dataType=dataType.name))
+     cog.outl("{name}, {dataType}, Lib::SimpleType, true, true".format(name = field.className, dataType=dataType.name))
     ]]]
     [[[end]]]
     >;
@@ -54,7 +54,8 @@ public:
     using ShortName_t = Lib::string_t
     <
      [[[cog
-        cog.outl(commonRenderer.genCharList(field.name))
+        name = field.displayName if field.displayName else field.name
+        cog.outl(commonRenderer.genCharList(name))
      ]]]
      [[[end]]]
     >;
@@ -80,7 +81,7 @@ public:
     constexpr const char * shortName () { return ShortName_t::c_str(); }
 
     [[[cog
-    cog.outl("{name} () {{}}".format(name=field.name))
+    cog.outl("{name} () {{}}".format(name=field.className))
     ]]]
     [[[end]]]
 
@@ -94,11 +95,11 @@ public:
 
       using {dataType}::operator=;
 
-      """.format(name=field.name, dataType=dataType.name), dedent = True)
+      """.format(name=field.className, dataType=dataType.name), dedent = True)
     elif dataType.isBoolean:
       cog.outl("""
       {name} (bool value): {dataType} (value) {{}}
-      """.format(name=field.name, dataType=dataType.name), dedent = True)
+      """.format(name=field.className, dataType=dataType.name), dedent = True)
     elif dataType.enumeration:
       cog.outl("""
       {name} ({dataType}::Enumeration value): {dataType} (value) {{}}
@@ -107,11 +108,11 @@ public:
         {dataType}::operator = (value);
         return *this;
       }}
-      """.format(name=field.name, dataType=dataType.name), dedent = True)
+      """.format(name=field.className, dataType=dataType.name), dedent = True)
     else:
       cog.outl("""
       {name} (const {dataType} & value): {dataType} (value) {{}}
-      """.format(name=field.name, dataType=dataType.name), dedent = True)
+      """.format(name=field.className, dataType=dataType.name), dedent = True)
     ]]]
     [[[end]]]
     [[[cog
@@ -121,12 +122,12 @@ public:
         {dataType}::operator = (value);
         return *this;
       }}
-    """.format(name = field.name, dataType = dataType.name), dedent = True)
+    """.format(name = field.className, dataType = dataType.name), dedent = True)
     ]]]
     [[[end]]]
 
     [[[cog
-    cog.outl("friend std::ostream& operator << (std::ostream& os, const {name}& field )".format(name = field.name))
+    cog.outl("friend std::ostream& operator << (std::ostream& os, const {name}& field )".format(name = field.className))
     ]]]
     [[[end]]]
     {

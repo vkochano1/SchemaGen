@@ -49,6 +49,7 @@ class VectorProperty(object):
         self.name = fieldName
         self.field = None
         self.message = None
+        self.required = required
         self.logger.debug("Created vector of %s" %(self.name))
 
     def linkField(self, field):

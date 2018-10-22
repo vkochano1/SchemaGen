@@ -2,7 +2,7 @@
 
 #include <type_traits>
 #include <limits>
-#include <brigand/sequences/set.hpp>
+//#include <brigand/sequences/set.hpp>
 
 [[[cog
 import renderers.namespace
@@ -17,7 +17,7 @@ cog.outl(nsRenderer.generateNamespaceBegin())
 ]]]
 [[[end]]]
 [[[cog
-        cog.outl("class {name} : public ::Data::EnumerationType".format(name = enum.name))
+        cog.outl("class {name} : public Lib::EnumerationType".format(name = enum.name))
 ]]]
 [[[end]]]
 {
@@ -50,9 +50,9 @@ public:
 
     using DataType = Enumeration;
 
-    using StorageType = std::underlyining_type< Enumeration>;
+    using StorageType = std::underlying_type_t< Enumeration>;
 
-    using ValueSet_t = std::brigand_set
+    using ValueSet_t = brigand::brigand_set
     <
      [[[cog
         pattern = ",\n".join( ["std::integral_constant<StorageType,%s>"] * enum.valCount )
@@ -101,12 +101,12 @@ public:
         valueName();
     }
 
-    const char * valueName()
+    const char * valueName() const
     {
         switch(_value)
         {
             [[[cog
-              pattern = "\n".join( ["case %s: return %s;"] * enum.valCount )
+              pattern = "\n".join( ["case %s: return \"%s\";"] * enum.valCount )
               cog.outl(enumRenderer.applyEnumNameValsToString(pattern))
             ]]]
             [[[end]]]
@@ -139,7 +139,7 @@ public:
     }
 
     [[[cog
-    cog.outl("{name} & fromString (const Lib::String & value, ParsingFormat::Enumeration format = ParsingFormat::ParseName)".format(name=enum.name))
+    cog.outl("{name} fromString (const Lib::String & value, ParsingFormat::Enumeration format = ParsingFormat::ParseName)".format(name=enum.name))
     ]]]
     [[[end]]]
     {
@@ -147,7 +147,7 @@ public:
     }
 
     [[[cog
-    cog.outl("{name} & fromString (const char * value, ParsingFormat::Enumeration format = ParsingFormat::ParseName)".format(name=enum.name))
+    cog.outl("{name} fromString (const char * value, ParsingFormat::Enumeration format = ParsingFormat::ParseName)".format(name=enum.name))
     ]]]
     [[[end]]]
     {
@@ -158,7 +158,7 @@ public:
         switch(string_hash(0, value))
         {
             [[[cog
-              pattern = """case string_hash(0, "{name}"): if(strncmp ({name}, value, {len} )) result = {value}; break;"""
+              pattern = """case string_hash(0, "{name}"): if(strncmp (\"{name}\", value, {len} )) result = {name}; break;"""
               for name, value in enum.nameValueArr:
                 out = pattern.format(name = enumRenderer.genRightPaddedName(name), value = value, len = str(len(name)))
                 cog.outl(out)

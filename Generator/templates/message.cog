@@ -1,20 +1,252 @@
 [[[cog
 import renderers.message
 import renderers.namespace
+import renderers.common
 
-messageRenderer = renderers.message.Renderer(model,msg)
+commonRenderer = renderers.common.Renderer(model, config)
+msgRenderer = renderers.message.Renderer(model,msg)
 nsRenderer = renderers.namespace.Renderer(model,msg.namespace)
 ]]]
 [[[end]]]
-#paragma once
+#pragma once
 
 [[[cog
-cog.outl(messageRenderer.generateIncludes())
+cog.outl(msgRenderer.generateIncludes())
 cog.outl(nsRenderer.generateNamespaceBegin())
 ]]]
 [[[end]]]
 
+[[[cog
+cog.outl("class {name} :  public {base}".format(name = msg.className, base = msgRenderer.genBaseClass() ) )
+]]]
+[[[end]]]
+{
+public:
+  [[[cog
+  cog.outl("typedef {base} Base;".format(base = msgRenderer.genBaseClass()))
+  ]]]
+  [[[end]]]
 
+  [[[cog
+    cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = str(msg.tag)))
+  ]]]
+  [[[end]]]
+
+  [[[cog
+  cog.outl(commonRenderer.generateRevision())
+  ]]]
+  [[[end]]]
+
+
+  [[[cog
+    cog.outl("""{name} () :Base()
+    {defaults}
+    {{
+
+    }}
+    """.format(name = msg.name, defaults = msgRenderer.genDefaultVals()), dedent = True)
+  ]]]
+  [[[end]]]
+
+  [[[cog
+    cog.outl("""~{name} ( ) {{}}""".format(name = msg.className), dedent = True)
+  ]]]
+  [[[end]]]
+
+  [[[cog
+    cog.outl("""{name} (const Base& base)
+    :Base(base)
+    {defaults}
+    {{
+
+    }}
+    """.format(name = msg.name, defaults = msgRenderer.genDefaultVals()), dedent = True)
+  ]]]
+  [[[end]]]
+
+
+  using ShortName_t = Lib::string_t
+  <
+   [[[cog
+      name = msg.displayName if msg.displayName else msg.name
+      cog.outl(commonRenderer.genCharList(name))
+   ]]]
+   [[[end]]]
+  >;
+
+  using Name_t = Lib::string_t
+  <
+  [[[cog
+     cog.outl(commonRenderer.genCharList(msg.fullName))
+  ]]]
+  [[[end]]]
+  >;
+
+  [[[cog
+    if msg.alias == None:
+      cog.outl("using Alias_t = Name_t;")
+    else:
+      aliasCharList = commonRenderer.genCharList(msg.alias)
+      cog.outl("""
+      using Alias_t = Lib::string_t
+      <
+      {aliasCharList}
+      >;
+      """.format(aliasCharList = aliasCharList), dedent = True);
+  ]]]
+  [[[end]]]
+
+  using Namespace_t = Lib::string_t
+  <
+  [[[cog
+     cog.outl(commonRenderer.genCharList(msg.namespace.fullName))
+  ]]]
+  [[[end]]]
+  >;
+
+  static constexpr boost::int32_t tag () {return TAG;}
+  static constexpr const char * name      () { return Name_t::c_str(); }
+  static constexpr const char * shortName () { return ShortName_t::c_str(); }
+  static constexpr const char * alias () { return Alias_t::c_str();}
+
+
+  [[[cog
+    patternCommon1 = """
+    using {name}Type = {typeName};
+
+    const {typeName}& get{name} () const noexcept {{ return _{name}; }}
+          {typeName}& get{name} ()       noexcept {{ return _{name}; }}
+
+    void set(const {typeName} & field) {{_{name} = field;}}
+    """;
+
+    patternForStrings = """
+    void set{name} (const Lib::String& field) {{_{name}.assign(field);}}
+    void set{name} (const char* field) {{_{name}.assign(field);}}
+    void set{name} (const std::string& field){{_{name}.assign(field);}}
+    """
+
+    patternCommon2 = """
+    void set{name}(const {typeName} & field) {{_{name} = field;}}
+    """;
+
+    for prop in msg.props:
+      cog.outl(patternCommon1.format(name=prop.name, typeName=msgRenderer.genPropType(prop) ))
+      if prop.field.dataType.isString == True:
+        cog.outl(patternForStrings.format(name=prop.name))
+      cog.outl(patternCommon2.format(name=prop.name, typeName=msgRenderer.genPropType(prop) ))
+  ]]]
+  [[[end]]]
+
+  using Base::set;
+
+  template<typename FIELD>
+  decltype(auto) get()
+  {
+    return get_(Lib::Identity<FIELD> () );
+  }
+
+  template<typename FIELD>
+  decltype(auto) get() const
+  {
+    return get_(Lib::Identity<FIELD> () );
+  }
+
+  template<typename FIELD>
+  void get(FIELD& field)
+  {
+    field = get_(Lib::Identity<FIELD>());
+  }
+
+  template<typename FIELD>
+  static constexpr bool required(const FIELD&) { return required_(Lib::Identity<FIELD>());}
+
+  template<typename FIELD>
+  static constexpr bool required() { return required_(Lib::Identity<FIELD>());}
+
+  template<typename F, typename ...ARGS>
+  bool for_each( F && f, ARGS && ...args )
+  {
+    if (! Base::for_each(std::forward<F> (f), std::forward<ARGS>(args)...) )
+    return false;
+
+    [[[cog
+      pattern = "if( !f (%s, args...) ) return false;\n" * len(msg.props)
+      cog.outl(msgRenderer.applyMemberNamesToString(pattern))
+    ]]]
+    [[[end]]]
+    return true;
+  }
+
+  template<typename F, typename ...ARGS>
+  bool for_each( F && f, ARGS && ...args ) const
+  {
+    if (! Base::for_each(std::forward<F> (f), std::forward<ARGS>(args)...) )
+    return false;
+
+    [[[cog
+      pattern = "if( !f (%s, args...) ) return false;\n" * len(msg.props)
+      cog.outl(msgRenderer.applyMemberNamesToString(pattern))
+    ]]]
+    [[[end]]]
+    return true;
+  }
+
+  template<typename F, typename ...ARGS>
+  bool for_each_required( F && f, ARGS && ...args )
+  {
+    if (! Base::for_each_required(std::forward<F> (f), std::forward<ARGS>(args)...) )
+    return false;
+
+    [[[cog
+      pattern = "if( !f (%s, args...) ) return false;\n" * msgRenderer.countPropsRequired
+      cog.outl(msgRenderer.applyMemberNamesToString(pattern, onlyRequired = True))
+    ]]]
+    [[[end]]]
+    return true;
+  }
+
+  template<typename F, typename ...ARGS>
+  bool for_each_required( F && f, ARGS && ...args ) const
+  {
+    if (! Base::for_each_required(std::forward<F> (f), std::forward<ARGS>(args)...) )
+    return false;
+
+    [[[cog
+      pattern = "if( !f (%s, args...) ) return false;\n" * msgRenderer.countPropsRequired
+      cog.outl(msgRenderer.applyMemberNamesToString(pattern, onlyRequired = True))
+    ]]]
+    [[[end]]]
+    return true;
+  }
+
+protected:
+  using Base::get_;
+  using Base::required_;
+
+  [[[cog
+    pattern = """
+    const {typeName} & get_(Lib::Identity<{typeName}>) const noexcept {{ return _{name}; }}
+          {typeName} & get_(Lib::Identity<{typeName}>)       noexcept {{ return _{name}; }}
+    const {typeName} & get_(const Lib::Identity<{typeName}::ShortName_t>&) const noexcept {{ return _{name}; }}
+          {typeName} & get_(const Lib::Identity<{typeName}::ShortName_t>&)       noexcept {{ return _{name}; }}
+
+    static constexpr bool required_(Lib::Identity<{typeName}>)       noexcept {{ return  {isReq}; }}
+    """
+    for prop in msg.props:
+      cog.outl(pattern.format(name=prop.name, typeName=msgRenderer.genPropType(prop), isReq = "true" if prop.required else "false" ))
+    ]]]
+    [[[end]]]
+
+
+protected:
+  [[[cog
+  for prop in msg.props:
+    propName = msgRenderer.genRightPaddedName(msgRenderer.genPropType(prop))
+    cog.outl("{prop_padded} _{prop};".format(prop_padded = propName ,prop=prop.field.name))
+  ]]]
+  [[[end]]]
+};
 
 [[[cog
 cog.outl(nsRenderer.generateNamespaceEnd())

@@ -3,25 +3,32 @@ import logging
 import utils
 
 class Message(object):
-    def __init__(self, name, tag, namespace, basename = None
-                ,isAbstract = False, isPolymorphic = False, usingNamespace = None ):
-        self.logger = logging.getLogger(__name__)
+    def __init__(self, name, tag, namespace
+                , basename = None
+                , isAbstract = False
+                , isPolymorphic = False
+                , usingNamespace = None
+                , alias = None
+                , displayName = None ):
+        self.logger  = logging.getLogger(__name__)
+        self.objType = 'Message'
         self.name         = name
+        self.className    = name
         self.tag          = tag
         self.namespace    = namespace
         self.basename     = basename
         self.baseMessage  = None
-        self.propertyByName =  {}
         self.isAbstract    = isAbstract
         self.isPolymorphic = isPolymorphic
         self.usingNamespace = usingNamespace
+        self.alias = alias
+        self.displayName = displayName
         self.props = []
-        self.injections = []
         self.constructor_body = None;
         self.methods = [];
+        self.injections = []
         self.isVector = False
         self.fullName = utils.NamespacePath.concatNamespaces(namespace.fullName, self.name)
-
         self.logger.debug("Created message %s::%s(%s)" %(self.namespace.fullName, self.name, str(self.tag)))
 
     def addMethod(self, method):
@@ -37,12 +44,13 @@ class Message(object):
     def processInjection(self, name, updated_props):
         addedProps = []
         curMsg = self.namespace.resolveMessageByName(name)
-
+        if not curMsg:
+            raise Exception("Failed to resolve injected message %s" % name)
         while curMsg != None:
             curMsg.resolveLinks()
+
             for prop in reversed(curMsg.props):
                 addedProps.append(prop)
-                self.propertyByName[prop.field.name] = prop
             curMsg = curMsg.baseMessage
 
         updated_props.extend(addedProps[::-1])
@@ -58,8 +66,6 @@ class Message(object):
     def resolveProps(self):
         updated_props = []
         for prop in self.props:
-            if prop.field != None:
-                continue
 
             if prop.isInjection == True:
                 self.processInjection(prop.name, updated_props)
@@ -76,7 +82,6 @@ class Message(object):
                 raise Exception("Failed to resolve property %s for message %s" % (prop.name, self.name))
 
             prop.linkField(field)
-            self.propertyByName[field.name] = prop
             updated_props.append(prop)
 
         self.props = updated_props
@@ -84,14 +89,17 @@ class Message(object):
     def resolveBase(self):
         if None == self.basename:
             return None
-        return self.namespace.resolveMessageByName(self.basename)
+        resolvedMsg = self.namespace.resolveMessageByName(self.basename)
+        if resolvedMsg == None:
+            raise Exception('Failed to resolve base class %s' % self.basename)
+        return resolvedMsg
 
     def resolveLinks(self):
         self.baseMessage = self.resolveBase()
         self.resolveProps()
 
     def __str__(self):
-        sprops ='\n[\n' +  '\n,'.join( [ str(j) for i, j in self.propertyByName.iteritems() ]) + '\n]\n'
+        sprops ='\n[\n' +  '\n,'.join( [ str(prop) for prop in self.props() ]) + '\n]\n'
         smethods = '\n[\n' + ',\n'.join( [ str(method) for method in self.methods ]) + '\n]\n'
         return "\n{\n message:'%s'\n base='%s',\n props:%s,\n is_vector:%s,\n methods:%s\
 ,\n constructor:'%s',\n is_abstract:'%s',\n is_polymorphic:'%s'\n}\n\

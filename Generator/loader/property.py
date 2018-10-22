@@ -7,14 +7,14 @@ class Loader(object):
     def load(self, el):
         if el._name == 'Property':
             name = el["Name"]
-            required = el["Required"]
+            required = (el["Required"].lower() == "true")
             defaultValue = el["Default"]
             return  model.property.Property(name, required, defaultValue)
         elif el._name == 'Injects':
             name = el["Name"]
             return model.property.InjectionProperty(name)
         elif el._name == 'Vector':
-            required = el["Required"]
+            required = (el["Required"].lower() == "true")
             name = el["DataType"]
             return model.property.VectorProperty(name,required)
 

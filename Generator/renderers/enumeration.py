@@ -5,7 +5,6 @@ class Renderer:
         self.model = model
         self.enum = enum
         self.nameMaxLen = max([len(name) for name, _ in enum.nameValueArr])
-        self.namePadding = ' ' * self.nameMaxLen
 
     def genRightPaddedName(self, name):
         return name + ' ' * (self.nameMaxLen - len(name))
