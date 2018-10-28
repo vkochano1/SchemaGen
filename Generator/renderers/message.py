@@ -7,7 +7,17 @@ class Renderer:
         self.propMaxLen = 0
         self.hasMessageVectorProp = False
         self.countPropsRequired = 0
+        self.constructorBody = None
+        self.hasCustomEmptyMethod = False
+
         self.countPropsAll = len(self.message.props)
+
+        for method in self.message.methods:
+            if method.name == "constructor_body":
+                self.constructorBody = method.declaration
+            elif method.name == "empty":
+                self.hasCustomEmptyMethod = True
+
         for prop in self.message.props:
             self.propMaxLen = max(self.propMaxLen, len(self.genPropType(prop)))
             self.hasMessageVectorProp = self.hasMessageVectorProp or (prop.field.objType == "Message" and prop.field.isVector)

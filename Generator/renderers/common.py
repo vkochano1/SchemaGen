@@ -9,12 +9,12 @@ class Renderer(object):
     def genCharList(self, name):
         return ','.join(["'" + c + "'" for c in name])
 
-    @staticmethod
+    """@staticmethod
     def genQualifiedNS(obj, namespace):
         i = 0
         if obj.namespace == None:
             return ''
-            
+
         out = ""
         objCompLen = len(obj.namespace.components)
         for comp in namespace.components:
@@ -26,3 +26,11 @@ class Renderer(object):
 
         ns = '::'.join(obj.namespace.components[i:])
         return ns
+    """
+    @staticmethod
+    def genQualifiedNS(obj, namespace):
+        i = 0
+        if obj.namespace == None:
+            return ''
+
+        return namespace.fullName

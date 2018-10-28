@@ -24,7 +24,6 @@ class Message(object):
         self.alias = alias
         self.displayName = displayName
         self.props = []
-        self.constructor_body = None;
         self.methods = [];
         self.injections = []
         self.isVector = False
@@ -34,12 +33,23 @@ class Message(object):
     def addMethod(self, method):
         self.methods.append(method)
 
-    def setConstructorBody(self, constructor_body):
-        self.constructor_body = constructor_body
-
     def addProperty(self, prop):
         prop.message = self
         self.props.append(prop)
+
+    def countBaseFields(self):
+        msg = self.baseMessage
+        sum = 0
+        while msg != None:
+            sum = sum + msg.countFields()
+            msg = msg.baseMessage
+        return sum
+
+    def countFields(self):
+        return len(self.props)
+
+    def countRequiredFields(self):
+        return len([prop for prop in self.props if prop.required == True])
 
     def processInjection(self, name, updated_props):
         addedProps = []
@@ -102,10 +112,10 @@ class Message(object):
         sprops ='\n[\n' +  '\n,'.join( [ str(prop) for prop in self.props() ]) + '\n]\n'
         smethods = '\n[\n' + ',\n'.join( [ str(method) for method in self.methods ]) + '\n]\n'
         return "\n{\n message:'%s'\n base='%s',\n props:%s,\n is_vector:%s,\n methods:%s\
-,\n constructor:'%s',\n is_abstract:'%s',\n is_polymorphic:'%s'\n}\n\
+,\n is_abstract:'%s',\n is_polymorphic:'%s'\n}\n\
         " % (self.namespace.fullName + '::' + self.name
              , str(self.baseMessage), sprops
-             , str(self.isVector), smethods, str(self.constructor_body)
+             , str(self.isVector), smethods
              , str(self.isAbstract), str(self.isPolymorphic))
 
     def __repr__(self):
