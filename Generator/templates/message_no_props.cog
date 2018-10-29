@@ -1,0 +1,239 @@
+[[[cog
+import renderers.message
+import renderers.namespace
+import renderers.common
+
+commonRenderer = renderers.common.Renderer(model, config)
+msgRenderer = renderers.message.Renderer(model,msg)
+nsRenderer = renderers.namespace.Renderer(model,msg.namespace)
+]]]
+[[[end]]]
+#pragma once
+
+[[[cog
+cog.outl(msgRenderer.generateIncludes())
+cog.outl(nsRenderer.generateNamespaceBegin())
+]]]
+[[[end]]]
+
+[[[cog
+cog.outl("class {name} :  public {base}".format(name = msg.className, base = msgRenderer.genBaseClass() ) )
+]]]
+[[[end]]]
+{
+public:
+  [[[cog
+  cog.outl("typedef {base} Base;".format(base = msgRenderer.genBaseClass()))
+  ]]]
+  [[[end]]]
+
+  using ThisFieldSet = brigand::set<>;
+
+  [[[cog
+    if msg.baseMessage != None:
+      cog.outl("""
+      using FieldSet_t = Base::FieldSet;
+      using Fields = FieldSet_t;
+
+      using TypeDescriptor = Lib::TypeDescriptor
+      <
+      {type}, Base,Lib::ContainerType, true,
+      Base::TypeDescriptor::IsSafeToClone && brigand::all<ThisFieldSet, Lib::Traits::is_safe_to_clone<brigand::_1> >::value
+      >;""".format(type=msg.className), dedent = True)
+    else:
+      cog.outl("""
+      using FieldSet_t = ThisFieldSet;
+      using Fields = FieldSet_t;
+
+      using TypeDescriptor = Lib::TypeDescriptor
+      <
+      {type}, Base, Lib::ContainerType, true,
+      brigand::all<ThisFieldSet, Lib::Traits::is_safe_to_clone<brigand::_1> >::value
+      >;""".format(type=msg.className), dedent = True)
+  ]]]
+  [[[end]]]
+
+[[[cog
+  if msg.isAbstract == True:
+    cog.outl("protected:")
+    if msg.isPolymorphic == True:
+      cog.outl("virtual ~{name} {{ }}".format(name=msg.className))
+    else:
+      cog.outl("virtual ~{name} {{ }}".format(name=msg.className))
+]]]
+[[[end]]]
+
+public:
+  [[[cog
+    cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = str(msg.tag)))
+  ]]]
+  [[[end]]]
+
+  [[[cog
+  cog.outl(commonRenderer.generateRevision())
+  ]]]
+  [[[end]]]
+
+  using ShortName_t = Lib::string_t
+  <
+   [[[cog
+      name = msg.displayName if msg.displayName else msg.name
+      cog.outl(commonRenderer.genCharList(name))
+   ]]]
+   [[[end]]]
+  >;
+  using Name_t = Lib::string_t
+  <
+  [[[cog
+     cog.outl(commonRenderer.genCharList(msg.fullName))
+  ]]]
+  [[[end]]]
+  >;
+
+  [[[cog
+    if msg.alias == None:
+      cog.outl("using Alias_t = Name_t;")
+    else:
+      aliasCharList = commonRenderer.genCharList(msg.alias)
+      cog.outl("""
+      using Alias_t = Lib::string_t
+      <
+      {aliasCharList}
+      >;
+      """.format(aliasCharList = aliasCharList), dedent = True);
+  ]]]
+  [[[end]]]
+
+  using Namespace_t = Lib::string_t
+  <
+  [[[cog
+     cog.outl(commonRenderer.genCharList(msg.namespace.fullName))
+  ]]]
+  [[[end]]]
+  >;
+
+  static constexpr boost::int32_t tag     () { return TAG;}
+  static constexpr const char * name      () { return Name_t::c_str(); }
+  static constexpr const char * shortName () { return ShortName_t::c_str(); }
+  static constexpr const char * alias     () { return Alias_t::c_str();}
+
+  [[[cog
+    constructorBody = msgRenderer.constructorBody if msgRenderer.constructorBody else ''
+
+    cog.outl("""{name} () : Base()
+    {{
+      {constructorBody}
+    }}
+    """.format(name = msg.name, constructorBody = constructorBody ), dedent = True)
+  ]]]
+  [[[end]]]
+
+  [[[cog
+    if msg.baseMessage != None:
+      constructorBody = msgRenderer.constructorBody if msgRenderer.constructorBody else ''
+      cog.outl("""
+      explicit
+      {name} (const Base& base)
+      :Base(base)
+      {{
+        {constructorBody}
+      }}
+      """.format(name = msg.name, constructorBody = constructorBody), dedent = True)
+  ]]]
+  [[[end]]]
+
+  [[[cog
+    if msg.isPolymorphic and not msg.isAbstract:
+      cog.outl("""~{name} ( ) {{}}""".format(name = msg.className), dedent = True)
+  ]]]
+[[[end]]]
+  /*****************************************************************************
+    Explicitly defined methods
+
+  ******************************************************************************/
+  [[[cog]]]
+  for method in msg.methods:
+    if method.name.contains("empty") or method.name.contains("constructor_body"):
+      continue
+    cog.outl(method.declaration)
+  [[[end]]]
+
+  template<typename F, typename ...ARGS>
+  bool for_each( F && f, ARGS && ...args )
+  {
+    return Base::for_each(std::forward<F> (f), std::forward<ARGS>(args)...));
+  }
+
+  template<typename F, typename ...ARGS>
+  bool for_each( F && f, ARGS && ...args ) const
+  {
+    return Base::for_each(std::forward<F> (f), std::forward<ARGS>(args)...) );
+  }
+
+  template<typename F, typename ...ARGS>
+  bool for_each_required( F && f, ARGS && ...args )
+  {
+    return Base::for_each_required(std::forward<F> (f), std::forward<ARGS>(args)...) )
+  }
+
+  template<typename F, typename ...ARGS>
+  bool for_each_required( F && f, ARGS && ...args ) const
+  {
+    return  Base::for_each_required(std::forward<F> (f), std::forward<ARGS>(args)...) ;
+  }
+
+  // Bind by field tag with arguments
+  Lib::LongString toString() const
+  {
+    Lib::LongString value;
+    Lib::StringOutputStream(value) << *this;
+    return value;
+  }
+
+  [[[cog
+  cog.outl("friend std::ostream& operator << (std::ostream& os, const {name}& value )".format(name = msg.className))
+  ]]]
+  [[[end]]]
+  {
+    Lib::FieldOp::Dump dumper(os);
+    dumper(value);
+    return os;
+  }
+
+  template <class Sequence, class Functor, class ...ARGS>
+  bool for_each (Functor && f, ARGS && ... args)
+  {
+    return Lib::ContainerOp::for_each<Sequence>(*this, std::forward<Functor>(f), std::forward<ARGS>(args)...);
+  }
+
+  template <class Sequence, class Functor, class ...ARGS>
+  bool for_each (Functor && f, ARGS && ... args) const
+  {
+    return Lib::ContainerOp::for_each<Sequence>(*this, std::forward<Functor>(f), std::forward<ARGS>(args)...);
+  }
+
+  [[[cog
+  cog.outl("""
+  template<typename FROM>
+  {type} & operator << (const FROM & from )
+  {{
+    from.for_each<Lib::ContainerOp::CommonFields< {type}, FROM> >
+    (
+      [this] (const auto & field) -> std::true_type
+      {{
+        this->set (field);
+        return std::true_type();
+      }}
+    );
+    return *this;
+  }}
+  """.format(type = msg.className), dedent = True )
+  ]]]
+  [[[end]]]
+
+};
+
+[[[cog
+cog.outl(nsRenderer.generateNamespaceEnd())
+]]]
+[[[end]]]
