@@ -46,7 +46,7 @@ public:
     using TypeDescriptor = Lib::TypeDescriptor
     <
     [[[cog
-     cog.outl("{name}, {dataType}, Lib::SimpleType, true, true".format(name = field.className, dataType=dataType.fullName))
+     cog.out("{name}, {dataType}, Lib::SimpleType, true, {dataType}::TypeDescriptor::IsSafeToClone".format(name = field.className, dataType=dataType.fullName))
     ]]]
     [[[end]]]
     >;
@@ -76,15 +76,20 @@ public:
     [[[end]]]
     >;
 
-    static constexpr boost::int32_t tag () {return TAG;}
-    constexpr const char * name      () { return Name_t::c_str(); }
-    constexpr const char * shortName () { return ShortName_t::c_str(); }
+    static constexpr boost::int32_t tag       () { return TAG; }
+    static constexpr const char *   name      () { return Name_t::c_str(); }
+    static constexpr const char *   shortName () { return ShortName_t::c_str(); }
 
     [[[cog
     cog.outl("{name} () {{}}".format(name=field.className))
     ]]]
     [[[end]]]
 
+    [[[cog
+      if dataType.isString != True:
+        cog.outl("{name} (const {dataType} & value) : {dataType} (value) {{}}".format(name=field.className, dataType=dataType.fullName))
+    ]]]
+    [[[end]]]
     [[[cog
     if dataType.isString:
       cog.outl("""
@@ -103,20 +108,16 @@ public:
     elif dataType.enumeration:
       cog.outl("""
       {name} ({dataType}::Enumeration value): {dataType} (value) {{}}
-      {name}& operator =  ({dataType}::Enumeration value)
+      {name} & operator =  ({dataType}::Enumeration value)
       {{
         {dataType}::operator = (value);
         return *this;
       }}
       """.format(name=field.className, dataType=dataType.fullName), dedent = True)
-    else:
-      cog.outl("""
-      {name} (const {dataType} & value): {dataType} (value) {{}}
-      """.format(name=field.className, dataType=dataType.fullName), dedent = True)
     ]]]
     [[[end]]]
     [[[cog
-    cog.outl("""
+    cog.out("""
       {name}& operator = (const {dataType} & value)
       {{
         {dataType}::operator = (value);

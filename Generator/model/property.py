@@ -4,11 +4,8 @@ from common import *
 class Property(ModelObject):
     def __init__(self, fieldName, required, defaultValue = None):
         super(Property, self).__init__(ObjectType.Property, None, fieldName)
-        #self.name = name
         self.defaultValue = defaultValue
         self.required = required
-        self.field = None
-        self.message = None
         self.logger.debug("Created property %s" % (str(self.name)))
 
     def linkField(self, field):
@@ -24,9 +21,6 @@ class Property(ModelObject):
 class InjectionProperty(ModelObject):
     def __init__(self, fieldName):
         super(InjectionProperty, self).__init__(ObjectType.Injection, None, fieldName)
-        #self.name = fieldName
-        self.message = None
-        self.field = None
         self.logger.debug("Injection property %s" % (self.name))
 
     def __str__(self):
@@ -38,9 +32,6 @@ class InjectionProperty(ModelObject):
 class VectorProperty(ModelObject):
     def __init__(self, fieldName, required):
         super(VectorProperty, self).__init__(ObjectType.VectorProperty, None, fieldName)
-        #self.name = fieldName
-        self.field = None
-        self.message = None
         self.required = required
         self.logger.debug("Created vector of %s" %(self.name))
 

@@ -12,11 +12,8 @@ class Message(ModelObject):
                 , alias = None
                 , displayName = None ):
         super(Message, self).__init__(ObjectType.Message, namespace, name)
-        self.objType = 'Message'
-        #self.name         = name
         self.className    = name
         self.tag          = tag
-        #self.namespace    = namespace
         self.basename     = basename
         self.baseMessage  = None
         self.isAbstract    = isAbstract
@@ -28,7 +25,6 @@ class Message(ModelObject):
         self.methods = [];
         self.injections = []
         self.isVector = False
-        #self.fullName = utils.NamespacePath.concatNamespaces(namespace.fullName, self.name)
         self.logger.debug("Created message %s::%s(%s)" %(self.namespace.fullName, self.name, str(self.tag)))
 
     def addMethod(self, method):

@@ -127,10 +127,10 @@ public:
   [[[end]]]
   >;
 
-  static constexpr boost::int32_t tag     () {return TAG;}
+  static constexpr boost::int32_t tag     () { return TAG; }
   static constexpr const char * name      () { return Name_t::c_str(); }
   static constexpr const char * shortName () { return ShortName_t::c_str(); }
-  static constexpr const char * alias     () { return Alias_t::c_str();}
+  static constexpr const char * alias     () { return Alias_t::c_str(); }
 
   [[[cog
     constructorBody = msgRenderer.constructorBody if msgRenderer.constructorBody else ''

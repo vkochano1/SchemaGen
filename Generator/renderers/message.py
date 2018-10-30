@@ -1,5 +1,7 @@
 import model.namespace
 import renderers.common
+from  model.common import *
+
 class Renderer:
     def __init__(self, model, message):
         self.model = model
@@ -20,7 +22,8 @@ class Renderer:
 
         for prop in self.message.props:
             self.propMaxLen = max(self.propMaxLen, len(self.genPropType(prop)))
-            self.hasMessageVectorProp = self.hasMessageVectorProp or (prop.field.objType == "Message" and prop.field.isVector)
+            self.hasMessageVectorProp = self.hasMessageVectorProp or (
+            prop.field.objectType() == ObjectType.Message and prop.field.isVector)
             if prop.required == True:
                 self.countPropsRequired = self.countPropsRequired + 1
     @staticmethod

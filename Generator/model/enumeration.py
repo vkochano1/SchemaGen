@@ -4,13 +4,10 @@ from common import *
 class Enumeration(ModelObject):
     def __init__(self, name, namespace, nameValueArr, storageType = None):
         super(Enumeration, self).__init__(ObjectType.Enumeration, namespace, name)
-        #self.name =  name
         self.nameValueArr = nameValueArr
-        #self.namespace = namespace
         self.isIntEnum = True
         self.hasUnk = False
         self.storageType = storageType
-        #self.fullName = utils.NamespacePath.concatNamespaces(namespace.fullName, self.name)
         self.hasCustomStreamOut = None
         self.methods = []
 

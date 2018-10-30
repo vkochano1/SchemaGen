@@ -38,4 +38,5 @@ class Loader(object):
 
     def load(self, namespace, enumElement):
         name = enumElement["Name"]
-        return model.datatype.DataType(name, namespace)
+        isString = enumElement["IsString"] if enumElement["IsString"] else False
+        return model.datatype.DataType(name, namespace, isString = isString)

@@ -7,8 +7,6 @@ from common import *
 class Field(ModelObject):
     def __init__(self, name, tag, dataType, namespace, attrs = None, displayName = None):
         super(Field, self).__init__(ObjectType.Field, namespace, name)
-        self.objType = 'Field'
-        #self.name = name
         self.className = 'Field'+ self.name
         self.displayName = displayName
         self.tag = tag

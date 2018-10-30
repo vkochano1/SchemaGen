@@ -6,8 +6,7 @@ from common import *
 class Namespace(ModelObject):
     def __init__(self, name, parentNamespace = None):
         super(Namespace, self).__init__(ObjectType.Namespace, parentNamespace, name)
-        # name & topology
-        #self.name = name
+
         self.parentNamespace = parentNamespace
         self.components = self.resolvefullPath_()
         self.subNamespaces = {}
@@ -23,7 +22,6 @@ class Namespace(ModelObject):
         self.messagesByName = {}
         self.fieldByTag   = {}
         self.messagesByTag = {}
-
         #imported namesapces
         self.importedNamespaces = {}
         self.importedNamespaceNames = set()
