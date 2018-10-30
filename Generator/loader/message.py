@@ -13,7 +13,7 @@ class Loader(object):
     @staticmethod
     def load(namespace, messageElement):
         injects = messageElement["Injects"]
-        
+
         msgArgs = {
         "name" : messageElement["Name"],
         "namespace" : namespace,
@@ -33,6 +33,5 @@ class Loader(object):
         Loader.processMessageProperties(message, messageElement)
 
         loader.common.Loader.processMethods(message, messageElement)
-        loader.common.Loader.processConstructorBody(message, messageElement)
 
         return message

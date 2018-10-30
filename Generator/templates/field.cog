@@ -46,7 +46,7 @@ public:
     using TypeDescriptor = Lib::TypeDescriptor
     <
     [[[cog
-     cog.outl("{name}, {dataType}, Lib::SimpleType, true, true".format(name = field.className, dataType=dataType.name))
+     cog.outl("{name}, {dataType}, Lib::SimpleType, true, true".format(name = field.className, dataType=dataType.fullName))
     ]]]
     [[[end]]]
     >;
@@ -95,11 +95,11 @@ public:
 
       using {dataType}::operator=;
 
-      """.format(name=field.className, dataType=dataType.name), dedent = True)
+      """.format(name=field.className, dataType=dataType.fullName), dedent = True)
     elif dataType.isBoolean:
       cog.outl("""
       {name} (bool value): {dataType} (value) {{}}
-      """.format(name=field.className, dataType=dataType.name), dedent = True)
+      """.format(name=field.className, dataType=dataType.fullName), dedent = True)
     elif dataType.enumeration:
       cog.outl("""
       {name} ({dataType}::Enumeration value): {dataType} (value) {{}}
@@ -108,11 +108,11 @@ public:
         {dataType}::operator = (value);
         return *this;
       }}
-      """.format(name=field.className, dataType=dataType.name), dedent = True)
+      """.format(name=field.className, dataType=dataType.fullName), dedent = True)
     else:
       cog.outl("""
       {name} (const {dataType} & value): {dataType} (value) {{}}
-      """.format(name=field.className, dataType=dataType.name), dedent = True)
+      """.format(name=field.className, dataType=dataType.fullName), dedent = True)
     ]]]
     [[[end]]]
     [[[cog
@@ -122,7 +122,7 @@ public:
         {dataType}::operator = (value);
         return *this;
       }}
-    """.format(name = field.className, dataType = dataType.name), dedent = True)
+    """.format(name = field.className, dataType = dataType.fullName), dedent = True)
     ]]]
     [[[end]]]
 

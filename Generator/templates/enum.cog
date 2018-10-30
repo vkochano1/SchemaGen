@@ -37,7 +37,7 @@ public:
     >;
 
     [[[cog
-    storageType = enum.storageType if enum.storageType else "Lib::Integer"
+    storageType = enum.storageType if enum.storageType else "Lib::Integer::DataType"
     cog.outl("enum Enumeration : {storageType}".format(storageType = storageType))
     ]]]
     [[[end]]]
@@ -83,6 +83,9 @@ public:
     ]]]
     [[[end]]]
 
+    const Enumeration & value() const { return _value; }
+    const Enumeration & value()       { return _value; }
+
     operator Enumeration () const { return _value; }
     operator Lib::Integer () const { return _value; }
 
@@ -90,13 +93,13 @@ public:
     bool empty() const { return Unk == _value; }
 
     [[[cog
-      cog.outl("""const constexpr size_t countValue() const {{ return {count}; }}""".format(count = enum.valCount))
+      cog.outl("""static const constexpr size_t valueCount () {{ return {count}; }}""".format(count = enum.valCount))
     ]]]
     [[[end]]]
     constexpr const char * name      () { return Name_t::c_str(); }
     constexpr const char * shortName () { return ShortName_t::c_str(); }
 
-    void validate ()
+    void validate () const
     {
         valueName();
     }
@@ -139,7 +142,7 @@ public:
     }
 
     [[[cog
-    cog.outl("{name} fromString (const Lib::String & value, ParsingFormat::Enumeration format = ParsingFormat::ParseName)".format(name=enum.name))
+    cog.outl("{name} & fromString (const Lib::String & value, ParsingFormat::Enumeration format = ParsingFormat::ParseName)".format(name=enum.name))
     ]]]
     [[[end]]]
     {
@@ -147,38 +150,97 @@ public:
     }
 
     [[[cog
-    cog.outl("{name} fromString (const char * value, ParsingFormat::Enumeration format = ParsingFormat::ParseName)".format(name=enum.name))
+    cog.outl("{name} & fromString (const char * value, ParsingFormat::Enumeration format = ParsingFormat::ParseName)".format(name=enum.name))
     ]]]
     [[[end]]]
     {
-      Enumeration result = Unk;
-      if ( ParsingFormat::ParseName == format )
+      if (ParsingFormat::ParseValue == format)
       {
+        [[[cog
+          patternCharEnum = """
+          if( 0 < value[0] && 0 == value[1])
+          {{
+            try
+            {{
+              {name} field (static_cast<DataType> (*value));
+              field.validate();
+              *this = field;
+              return *this;
+            }}
+            catch(...)
+            {{
 
-        switch(string_hash(0, value))
-        {
-            [[[cog
-              pattern = """case string_hash(0, "{name}"): if(strncmp (\"{name}\", value, {len} )) result = {name}; break;"""
-              for name, value in enum.nameValueArr:
-                out = pattern.format(name = enumRenderer.genRightPaddedName(name), value = value, len = str(len(name)))
-                cog.outl(out)
-            ]]]
-            [[[end]]]
-        };
+            }}
+          }}"""
+
+          patternIntEnum = """
+          try
+          {{
+            {name} field
+            (
+              static_cast<DataType>
+              (
+                Lib::Integer().fromString (value).value ()
+              )
+            );
+
+            field.validate();
+            *this = field;
+            return *this;
+          }}
+          catch(...)
+          {{
+
+          }}"""
+          cog.outl(patternIntEnum.format(name=enum.name) if enum.isIntEnum == True else patternCharEnum.format(name=enum.name) )
+        ]]]
+        [[[end]]]
       }
       else
+      if ( ParsingFormat::ParseName == format )
       {
-        if(value &&  value[1] == 0)
+        using Lib::string_hash;
+        auto hashValue = string_hash(0, value);
+
+        switch(hashValue)
         {
-          result = static_cast<Enumeration> (value[1]);
-          validate();
-        }
+            [[[cog
+              pattern = """
+              case string_hash(0, "{name}"):
+                if(0 != strcmp ("{name}", value))
+                  break;
+                _value = {name};
+                return *this;
+
+              case string_hash(0, "{nameLong}"):
+                if(0 != strcmp ("{nameLong}", value))
+                  break;
+                  _value = {name};
+                  return *this;"""
+
+              for name, value in enum.nameValueArr:
+                out = pattern.format(name = name, nameLong = enum.name + '::' + name)
+                cog.outl(out, dedent = True)
+            ]]]
+            [[[end]]]
+            default:
+            break;
+        };
+
+        LIB_THROW
+        (
+          std::invalid_argument,
+          [[[cog
+            cog.outl(""""{name} value <" << value << "> is invalid for parsing format " << long (format) """.format(name=enum.name))
+          ]]]
+          [[[end]]]
+        );
       }
-      return result;
     }
 
     template<typename F, typename ...ARGS>
-    static bool for_each( F && f,ARGS && ...args )
+    static
+    bool for_each( F && f,ARGS && ...args )
     {
       [[[cog
         pattern = "if( !f (%s, args...) ) return false;\n" * enum.valCount

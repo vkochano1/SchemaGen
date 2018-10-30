@@ -1,6 +1,23 @@
 import utils
 import logging
 import cogapp
+from  model.common import *
+
+class TemplateRouter(object):
+    def __init__(self, obj):
+        self.modelObj = obj
+
+    def routeObject(self):
+        if self.modelObj.objectType() == ObjectType.Message:
+            if self.modelObj.countFields() == 0:
+                return "templates/message_no_props.cog"
+            else:
+                return "templates/message.cog"
+        elif self.modelObj.objectType() == ObjectType.Field:
+            return "templates/field.cog"
+        elif self.modelObj.objectType() == ObjectType.Enumeration:
+            return "templates/enum.cog"
+
 
 class Renderer(object):
     def __init__(self, schema, config):
@@ -21,8 +38,11 @@ class Renderer(object):
             dirFields = utils.NamespacePath.createOutDirectory(prefix, namespace, 'Fields' );
 
             for _, message in namespace.messagesByName.iteritems():
-                genApp.processFile("templates/message.cog", '%s/%s.h' % (dirMsgs, message.name), globals = { 'model' : self.schema, 'msg' : message, "config": self.cfg })
+                template = TemplateRouter(message).routeObject()
+                genApp.processFile(template, '%s/%s.h' % (dirMsgs, message.name), globals = { 'model' : self.schema, 'msg' : message, "config": self.cfg })
             for _, enum in namespace.enumerations.iteritems():
-                genApp.processFile("templates/enum.cog", '%s/%s.h' % (dirEnums, enum.name), globals = { 'model' : self.schema, 'enum' : enum, "config":self.cfg })
+                template = TemplateRouter(enum).routeObject()
+                genApp.processFile(template, '%s/%s.h' % (dirEnums, enum.name), globals = { 'model' : self.schema, 'enum' : enum, "config":self.cfg })
             for _, field in namespace.fieldByName.iteritems():
-                genApp.processFile("templates/field.cog", '%s/%s.h' % (dirFields, field.name), globals = { 'model' : self.schema, 'field' : field, "config":self.cfg })
+                template = TemplateRouter(field).routeObject()
+                genApp.processFile(template, '%s/%s.h' % (dirFields, field.name), globals = { 'model' : self.schema, 'field' : field, "config":self.cfg })

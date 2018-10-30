@@ -2,20 +2,21 @@ import namespace
 import loader.datatype
 import logging
 import utils
+from common import *
 
-class Field(object):
+class Field(ModelObject):
     def __init__(self, name, tag, dataType, namespace, attrs = None, displayName = None):
-        self.logger = logging.getLogger(__name__)
+        super(Field, self).__init__(ObjectType.Field, namespace, name)
         self.objType = 'Field'
-        self.name = name
+        #self.name = name
         self.className = 'Field'+ self.name
         self.displayName = displayName
         self.tag = tag
         self.dataTypeName = dataType
         self.dataType = None
         self.attrs = attrs
-        self.namespace = namespace
-        self.fullName = utils.NamespacePath.concatNamespaces(self.namespace.fullName, self.name)
+        #self.namespace = namespace
+        #self.fullName = utils.NamespacePath.concatNamespaces(self.namespace.fullName, self.name)
         self.logger.debug('Created field %s::%s ' % (namespace.fullName, self.name))
 
     def __str__(self):

@@ -33,4 +33,4 @@ class Renderer(object):
         if obj.namespace == None:
             return ''
 
-        return namespace.fullName
+        return obj.namespace.fullName

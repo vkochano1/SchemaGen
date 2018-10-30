@@ -210,7 +210,7 @@ public:
 
   [[[cog
     if msg.countBaseFields() > 0:
-      cog.outl("using Base::set");
+      cog.outl("using Base::set;");
   ]]]
   [[[end]]]
 
@@ -449,7 +449,7 @@ public:
   Lib::LongString toString() const
   {
     Lib::LongString value;
-    Lib::StringOutputSteam(value) << *this;
+    Lib::StringOutputStream(value) << *this;
     return value;
   }
 
@@ -480,7 +480,7 @@ public:
   template<typename FROM>
   {type} & operator << (const FROM & from )
   {{
-    from.for_each<Lib::ContainerOp::CommonFields< {type}, FROM> >
+    from. template for_each<Lib::ContainerOp::CommonFields< {type}, FROM> >
     (
       [this] (const auto & field) -> std::true_type
       {{

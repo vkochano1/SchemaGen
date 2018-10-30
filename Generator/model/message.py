@@ -1,8 +1,9 @@
 import property
 import logging
 import utils
+from common import *
 
-class Message(object):
+class Message(ModelObject):
     def __init__(self, name, tag, namespace
                 , basename = None
                 , isAbstract = False
@@ -10,12 +11,12 @@ class Message(object):
                 , usingNamespace = None
                 , alias = None
                 , displayName = None ):
-        self.logger  = logging.getLogger(__name__)
+        super(Message, self).__init__(ObjectType.Message, namespace, name)
         self.objType = 'Message'
-        self.name         = name
+        #self.name         = name
         self.className    = name
         self.tag          = tag
-        self.namespace    = namespace
+        #self.namespace    = namespace
         self.basename     = basename
         self.baseMessage  = None
         self.isAbstract    = isAbstract
@@ -27,7 +28,7 @@ class Message(object):
         self.methods = [];
         self.injections = []
         self.isVector = False
-        self.fullName = utils.NamespacePath.concatNamespaces(namespace.fullName, self.name)
+        #self.fullName = utils.NamespacePath.concatNamespaces(namespace.fullName, self.name)
         self.logger.debug("Created message %s::%s(%s)" %(self.namespace.fullName, self.name, str(self.tag)))
 
     def addMethod(self, method):
@@ -77,11 +78,11 @@ class Message(object):
         updated_props = []
         for prop in self.props:
 
-            if prop.isInjection == True:
+            if  prop.objectType() == ObjectType.Injection:
                 self.processInjection(prop.name, updated_props)
                 continue
 
-            if prop.isVector == True:
+            if prop.objectType() == ObjectType.VectorProperty:
                 self.isVector = True
 
             field  = self.resolveProp(prop.name)

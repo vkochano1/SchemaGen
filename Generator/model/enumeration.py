@@ -1,14 +1,16 @@
 import utils
+from common import *
 
-class Enumeration(object):
+class Enumeration(ModelObject):
     def __init__(self, name, namespace, nameValueArr, storageType = None):
-        self.name =  name
+        super(Enumeration, self).__init__(ObjectType.Enumeration, namespace, name)
+        #self.name =  name
         self.nameValueArr = nameValueArr
-        self.namespace = namespace
+        #self.namespace = namespace
         self.isIntEnum = True
         self.hasUnk = False
         self.storageType = storageType
-        self.fullName = utils.NamespacePath.concatNamespaces(namespace.fullName, self.name)
+        #self.fullName = utils.NamespacePath.concatNamespaces(namespace.fullName, self.name)
         self.hasCustomStreamOut = None
         self.methods = []
 

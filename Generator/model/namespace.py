@@ -1,12 +1,13 @@
 import utils
 import logging
 import model.datatype
+from common import *
 
-class Namespace(object):
+class Namespace(ModelObject):
     def __init__(self, name, parentNamespace = None):
-        self.logger = logging.getLogger(__name__)
+        super(Namespace, self).__init__(ObjectType.Namespace, parentNamespace, name)
         # name & topology
-        self.name = name
+        #self.name = name
         self.parentNamespace = parentNamespace
         self.components = self.resolvefullPath_()
         self.subNamespaces = {}

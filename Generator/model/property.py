@@ -1,12 +1,10 @@
 import logging
+from common import *
 
-class Property(object):
-    isVector = False
-    isInjection = False
-
+class Property(ModelObject):
     def __init__(self, fieldName, required, defaultValue = None):
-        self.logger = logging.getLogger(__name__)
-        self.name = fieldName
+        super(Property, self).__init__(ObjectType.Property, None, fieldName)
+        #self.name = name
         self.defaultValue = defaultValue
         self.required = required
         self.field = None
@@ -21,15 +19,12 @@ class Property(object):
         return "\n{\n property:'%s',\n required='%s'\n}\n" % (str(self.field), str(self.required))
 
     def __repr__(self):
-            return str(self)
+        return str(self)
 
-class InjectionProperty(object):
-    isVector = False
-    isInjection = True
-
+class InjectionProperty(ModelObject):
     def __init__(self, fieldName):
-        self.logger = logging.getLogger(__name__)
-        self.name = fieldName
+        super(InjectionProperty, self).__init__(ObjectType.Injection, None, fieldName)
+        #self.name = fieldName
         self.message = None
         self.field = None
         self.logger.debug("Injection property %s" % (self.name))
@@ -38,15 +33,12 @@ class InjectionProperty(object):
         return "\n{\ninjection:'%s'\n}\n" % (self.name)
 
     def __repr__(self):
-            return str(self)
+        return str(self)
 
-class VectorProperty(object):
-    isVector = True
-    isInjection = False
-
+class VectorProperty(ModelObject):
     def __init__(self, fieldName, required):
-        self.logger = logging.getLogger(__name__)
-        self.name = fieldName
+        super(VectorProperty, self).__init__(ObjectType.VectorProperty, None, fieldName)
+        #self.name = fieldName
         self.field = None
         self.message = None
         self.required = required
