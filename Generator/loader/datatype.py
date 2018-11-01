@@ -38,5 +38,11 @@ class Loader(object):
 
     def load(self, namespace, enumElement):
         name = enumElement["Name"]
-        isString = enumElement["IsString"] if enumElement["IsString"] else False
-        return model.datatype.DataType(name, namespace, isString = isString)
+
+        attrIsString = enumElement["IsString"]
+        isString = attrIsString.lower() == "true" if attrIsString else False
+
+        attrHeaderFile = enumElement["HeaderFile"]
+        headerFile = attrIsString.lower() == "true" if attrHeaderFile else False
+
+        return model.datatype.DataType(name, namespace, isString = isString, headerFile = headerFile)

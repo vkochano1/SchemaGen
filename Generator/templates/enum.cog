@@ -52,11 +52,14 @@ public:
 
     using StorageType = std::underlying_type_t< Enumeration>;
 
-    using ValueSet_t = brigand::brigand_set
+    using ValueSet_t = brigand::set
     <
      [[[cog
-        pattern = ",\n".join( ["std::integral_constant<StorageType,%s>"] * enum.valCount )
-        cog.outl(enumRenderer.applyEnumNamesToString(pattern))
+        pattern = """std::integral_constant<StorageType,{name}>"""
+        generated = []
+        for i, (name,  _)  in enumerate(enum.nameValueArr):
+                generated.append(pattern.format(name = name))
+        cog.outl(",\n".join(generated))
      ]]]
      [[[end]]]
     >;
@@ -84,7 +87,7 @@ public:
     [[[end]]]
 
     const Enumeration & value() const { return _value; }
-    const Enumeration & value()       { return _value; }
+          Enumeration & value()       { return _value; }
 
     operator Enumeration () const { return _value; }
     operator Lib::Integer () const { return _value; }
@@ -96,8 +99,8 @@ public:
       cog.outl("""static const constexpr size_t valueCount () {{ return {count}; }}""".format(count = enum.valCount))
     ]]]
     [[[end]]]
-    constexpr const char * name      () { return Name_t::c_str(); }
-    constexpr const char * shortName () { return ShortName_t::c_str(); }
+    static constexpr const char * name      () { return Name_t::c_str(); }
+    static constexpr const char * shortName () { return ShortName_t::c_str(); }
 
     void validate () const
     {
@@ -109,8 +112,13 @@ public:
         switch(_value)
         {
             [[[cog
-              pattern = "\n".join( ["case %s: return \"%s\";"] * enum.valCount )
-              cog.outl(enumRenderer.applyEnumNameValsToString(pattern))
+              pattern = """case {name}: return "{name}";"""
+
+              generated = []
+
+              for i, (name, _) in enumerate(enum.nameValueArr):
+                      generated.append(pattern.format(name = name))
+              cog.outl("\n".join(generated))
             ]]]
             [[[end]]]
             default: break;
@@ -199,7 +207,7 @@ public:
       else
       if ( ParsingFormat::ParseName == format )
       {
-        using Lib::string_hash;
+        using Lib::detail::string_hash;
         auto hashValue = string_hash(0, value);
 
         switch(hashValue)
@@ -243,8 +251,13 @@ public:
     bool for_each( F && f,ARGS && ...args )
     {
       [[[cog
-        pattern = "if( !f (%s, args...) ) return false;\n" * enum.valCount
-        cog.outl(enumRenderer.applyEnumNamesToString(pattern))
+      pattern =  "if( !f ({enum_name}({name}), args...) ) return false;"
+      generated = []
+
+      for i, (name,  _ ) in enumerate(enum.nameValueArr):
+              generated.append(pattern.format(name = name, enum_name = enum.name))
+      cog.outl("\n".join(generated))
+
       ]]]
       [[[end]]]
       return true;
@@ -255,11 +268,11 @@ public:
       switch(_value)
       {
           [[[cog
-            out = ''
-            numElements = enum.valCount
-            for i in range(numElements):
-              out = out + "case %s: return %s;\n" % ("%s", str(i))
-            cog.outl(enumRenderer.applyEnumNamesToString(out))
+            pattern =  "case {name}: return {idx};"
+            generated = []
+            for i, ( name,  _ ) in enumerate(enum.nameValueArr):
+                    generated.append(pattern.format(name = name, idx = i))
+            cog.outl("\n".join(generated))
           ]]]
           [[[end]]]
           default: break;
@@ -282,11 +295,12 @@ public:
       switch(ordinal)
       {
         [[[cog
-          out = ''
-          for i in range(enum.valCount):
-            out = out + "case %s: return %s;\n" % (str(i), "%s")
+        pattern =  "case {idx}: return {name};"
+        generated = []
+        for i, (name,  _) in enumerate(enum.nameValueArr):
+                generated.append(pattern.format(name = name, idx = i))
+        cog.outl("\n".join(generated))
 
-          cog.outl(enumRenderer.applyEnumNamesToString(out))
         ]]]
         [[[end]]]
         default:

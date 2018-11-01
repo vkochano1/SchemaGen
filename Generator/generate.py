@@ -8,7 +8,6 @@ import loader.project
 import renderers.schema
 
 
-
 def generate(project, onlyLoad):
     project = loader.project.Loader(project)
     project.load()

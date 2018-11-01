@@ -27,7 +27,7 @@ class Enumeration(ModelObject):
         self.valCount = len(self.nameValueDict)
 
     def addMethod(self, method):
-        if method [0] == 'operator <<':
+        if method [0] == 'operator<<':
             self.hasCustomStreamOut = True
         self.methods.append(method)
 
