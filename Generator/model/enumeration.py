@@ -10,6 +10,7 @@ class Enumeration(ModelObject):
         self.storageType = storageType
         self.hasCustomStreamOut = None
         self.methods = []
+        self.headerFile = self.fullName.replace("::","/")
 
         for name, value in nameValueArr:
             if self.isIntEnum:

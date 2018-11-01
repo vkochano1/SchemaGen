@@ -16,4 +16,7 @@ class Renderer(object):
             out = '/'.join( self.field.dataType.namespace.components[1:])
             out = "#include<" + out + '/Enumerations/' + self.field.dataType.name + ".h>"
             return out
+        elif self.field.dataType.headerFile:
+            out = """#include<"{filename}">""".format(filename = self.field.dataType.headerFile)
+            return out
         return ''
