@@ -13,14 +13,11 @@ class Field(ModelObject):
         self.dataTypeName = dataType
         self.dataType = None
         self.attrs = attrs
-        #self.namespace = namespace
-        #self.fullName = utils.NamespacePath.concatNamespaces(self.namespace.fullName, self.name)
         self.logger.debug('Created field %s::%s ' % (namespace.fullName, self.name))
 
     def __str__(self):
-        return "\n{\n field:'%s::%s',\n tag:'%s',\n datatype:%s\n}\n" % (
-        self.namespace.fullName,
-        self.name,
+        return "\n{\n field:'%s',\n tag:'%s',\n datatype:%s\n}\n" % (
+        self.fullName,
         str(self.tag),
         str(self.dataType)
         )
@@ -29,9 +26,11 @@ class Field(ModelObject):
         return str(self.__dict__)
 
     def resolveLinks(self):
-        self.dataType = self.namespace.resolveDataTypeByName(self.dataTypeName)
+        self.dataType = self.namespace().resolveDataTypeByName(self.dataTypeName)
         if self.dataType == None:
             self.dataType = loader.datatype.Loader().lookUp(self.dataTypeName)
 
         if self.dataType == None:
             raise Exception('Failed to resolve datatype %s' % str(self.dataTypeName))
+
+        self.__propDataCategory = self.dataType.propDataCategory()

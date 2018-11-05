@@ -2,15 +2,32 @@
 import renderers.message
 import renderers.namespace
 import renderers.common
+from model.common import *
 
 commonRenderer = renderers.common.Renderer(model, config)
 msgRenderer = renderers.message.Renderer(model,msg)
-nsRenderer = renderers.namespace.Renderer(model,msg.namespace)
+nsRenderer = renderers.namespace.Renderer(model,msg.namespace())
 ]]]
 [[[end]]]
 #pragma once
 
 [[[cog
+includesForContainerBased="""/*#include <Lib/Types.h>
+#include <Lib/FieldTraits.h>
+#include <Lib/FieldOp/Clear.h>
+#include <Lib/FieldOp/IsEmpty.h>
+#inclide <Lib/FieldOp/Dump.h>
+#include <Lib/TypeTraits.h>
+#include <Lib/ContainerOp.h>
+
+#include <brigand/sequences/set.hpp>
+#include <brigand/sequences/append.hpp>
+#include <brigand/sequences/contains.hpp>
+#include <brigand/algorithms/all.hpp>
+*/"""
+if msg.baseMessage == None:
+  cog.outl(includesForContainerBased, dedent = True)
+
 cog.outl(msgRenderer.generateIncludes())
 cog.outl(nsRenderer.generateNamespaceBegin())
 ]]]
@@ -64,7 +81,7 @@ protected:
   [[[cog
   for prop in msg.props:
     propName = msgRenderer.genRightPaddedName(msgRenderer.genPropType(prop))
-    cog.outl("{prop_padded} _{prop};".format(prop_padded = propName ,prop=prop.field.name))
+    cog.outl("{prop_padded} _{prop};".format(prop_padded = propName ,prop=prop.propDataType().name))
   ]]]
   [[[end]]]
 
@@ -122,7 +139,7 @@ public:
   using Namespace_t = Lib::string_t
   <
   [[[cog
-     cog.outl(commonRenderer.genCharList(msg.namespace.fullName))
+     cog.outl(commonRenderer.genCharList(msg.namespace().fullName))
   ]]]
   [[[end]]]
   >;
@@ -202,7 +219,7 @@ public:
 
     for prop in msg.props:
       cog.outl(patternCommon1.format(name=prop.name, typeName=msgRenderer.genPropType(prop) ))
-      if prop.field != None and prop.field.dataType.isString == True:
+      if prop.propDataType().dataType.propDataCategory() == PropDataCategory.String:
         cog.outl(patternForStrings.format(name=prop.name))
       cog.outl(patternCommon2.format(name=prop.name, typeName=msgRenderer.genPropType(prop) ))
   ]]]
@@ -295,7 +312,7 @@ public:
     return false;
 
     [[[cog
-      pattern = "if( !f (%s, args...) ) return false;\n" * len(msg.props)
+      pattern = "if( !f (%s, std::forward(args)...) ) return false;\n" * len(msg.props)
       cog.outl(msgRenderer.applyMemberNamesToString(pattern))
     ]]]
     [[[end]]]
@@ -368,10 +385,10 @@ public:
   template<typename F, typename ...ARGS>
   bool bind(const char* name, F && f, ARGS && ...args)
   {
-    using Lib::string_hash;
+    using Lib::detail::string_hash;
     size_t nameLength = 0;
     auto hashValue = string_hash(0, name, &nameLength);
-    switch (tag)
+    switch (hashValue)
     {
       [[[cog
       patternToLower ="""case string_hash(0, {type}::ShortName_t::to_lower().c_str()):
@@ -395,11 +412,11 @@ public:
                             f(_{name}, std::forward(args)...); return true; break;"""
 
       for prop in msg.props:
-        shortName = prop.field.name
-        if prop.field.displayName != None:
-          shortName = prop.field.displayName
+        shortName = prop.propDataType().name
+        if prop.propDataType().displayName != None:
+          shortName = prop.propDataType().displayName
 
-        longName = prop.field.fullName
+        longName = prop.propDataType().fullName
         propType = msgRenderer.genPropType(prop)
 
         if shortName.lower() != shortName:
@@ -519,7 +536,7 @@ protected:
     static constexpr bool required_(Lib::Identity<{typeName}>)       noexcept {{ return  {isReq}; }}
     """
     for prop in msg.props:
-      cog.outl(pattern.format(name=prop.name, typeName=msgRenderer.genPropType(prop), isReq = "true" if prop.required else "false" ))
+      cog.outl(pattern.format(name=prop.name, typeName=msgRenderer.genPropType(prop), isReq = "true" if prop.required() else "false" ))
     ]]]
     [[[end]]]
 

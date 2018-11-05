@@ -11,7 +11,7 @@ class Message(ModelObject):
                 , usingNamespace = None
                 , alias = None
                 , displayName = None ):
-        super(Message, self).__init__(ObjectType.Message, namespace, name)
+        super(Message, self).__init__(ObjectType.Message, namespace, name, PropDataCategory.Message)
         self.className    = name
         self.tag          = tag
         self.basename     = basename
@@ -25,7 +25,7 @@ class Message(ModelObject):
         self.methods = [];
         self.injections = []
         self.isVector = False
-        self.logger.debug("Created message %s::%s(%s)" %(self.namespace.fullName, self.name, str(self.tag)))
+        self.logger.debug("Created message %s(%s)" %(self.fullName, str(self.tag)))
 
     def addMethod(self, method):
         self.methods.append(method)
@@ -46,11 +46,11 @@ class Message(ModelObject):
         return len(self.props)
 
     def countRequiredFields(self):
-        return len([prop for prop in self.props if prop.required == True])
+        return len([prop for prop in self.props if prop.required() == True])
 
     def processInjection(self, name, updated_props):
         addedProps = []
-        curMsg = self.namespace.resolveMessageByName(name)
+        curMsg = self.namespace().resolveMessageByName(name)
         if not curMsg:
             raise Exception("Failed to resolve injected message %s" % name)
         while curMsg != None:
@@ -63,7 +63,7 @@ class Message(ModelObject):
         updated_props.extend(addedProps[::-1])
 
     def resolveProp(self, name):
-        field = self.namespace.resolveFieldByName(name)
+        field = self.namespace().resolveFieldByName(name)
         # fallback to message field
         if field == None:
             field = self.namespace.resolveMessageByName(name)
@@ -74,11 +74,11 @@ class Message(ModelObject):
         updated_props = []
         for prop in self.props:
 
-            if  prop.objectType() == ObjectType.Injection:
+            if  prop.objectPropertyType() == ObjectPropertyType.Injection:
                 self.processInjection(prop.name, updated_props)
                 continue
 
-            if prop.objectType() == ObjectType.VectorProperty:
+            if prop.objectPropertyType() == ObjectPropertyType.VectorProperty:
                 self.isVector = True
 
             field  = self.resolveProp(prop.name)
@@ -88,7 +88,7 @@ class Message(ModelObject):
             if field == None:
                 raise Exception("Failed to resolve property %s for message %s" % (prop.name, self.name))
 
-            prop.linkField(field)
+            prop.linkDataType(field)
             updated_props.append(prop)
 
         self.props = updated_props
@@ -96,7 +96,7 @@ class Message(ModelObject):
     def resolveBase(self):
         if None == self.basename:
             return None
-        resolvedMsg = self.namespace.resolveMessageByName(self.basename)
+        resolvedMsg = self.namespace().resolveMessageByName(self.basename)
         if resolvedMsg == None:
             raise Exception('Failed to resolve base class %s' % self.basename)
         return resolvedMsg
@@ -110,10 +110,15 @@ class Message(ModelObject):
         smethods = '\n[\n' + ',\n'.join( [ str(method) for method in self.methods ]) + '\n]\n'
         return "\n{\n message:'%s'\n base='%s',\n props:%s,\n is_vector:%s,\n methods:%s\
 ,\n is_abstract:'%s',\n is_polymorphic:'%s'\n}\n\
-        " % (self.namespace.fullName + '::' + self.name
+        " % (  self.fullName
              , str(self.baseMessage), sprops
              , str(self.isVector), smethods
              , str(self.isAbstract), str(self.isPolymorphic))
 
     def __repr__(self):
         return str(self.__dict__)
+
+class Payload(Message):
+    def __init__(self, namespace, name):
+        super(Payload, self).__init__(namespace, name)
+        self.objectType = ObjectType.Payload

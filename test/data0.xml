@@ -15,12 +15,15 @@
 
 
   <Namespace Name="Z::G::NameX">
-    <DataType Name="NT"/>
+    <DataType Name="NT" HeaderFile="JJJJJJ.h"/>
     <Field Name="field1" Tag="34" DataType="NT"/>
     <Field Name="field3"  Tag="44" DataType="String"/>
     <Field Name="field2"  Tag="444" DataType="String"/>
 
 
+    <Message Name="SS" Tag="6765">
+	    <Vector DataType="field1"/>
+    </Message>	    
     <Message Name="BaseM" Tag="1236">
       <Property Name="field3" Required="True"/>
     </Message>

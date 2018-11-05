@@ -9,28 +9,20 @@ class Renderer(object):
     def genCharList(self, name):
         return ','.join(["'" + c + "'" for c in name])
 
-    """@staticmethod
-    def genQualifiedNS(obj, namespace):
-        i = 0
-        if obj.namespace == None:
-            return ''
-
-        out = ""
-        objCompLen = len(obj.namespace.components)
-        for comp in namespace.components:
-            if i >= objCompLen:
-                break
-            if obj.namespace.components[i] != comp:
-                break
-            i = i+1
-
-        ns = '::'.join(obj.namespace.components[i:])
-        return ns
-    """
     @staticmethod
     def genQualifiedNS(obj, namespace):
-        i = 0
-        if obj.namespace == None:
+        if obj.namespace() == None:
             return ''
 
-        return obj.namespace.fullName
+        return obj.namespace().fullName
+
+
+    @staticmethod
+    def genIncludes(objCategory, collection):
+        out = []
+        for obj in collection:
+            nsPart = '/'.join(obj.namespace().components[1:])
+            inclFile = "#include <{nsPart}/{category}/{name}.h>".format(nsPart = nsPart, category = objCategory, name = obj.name)
+            out.append(inclFile)
+
+        return '\n'.join(out)

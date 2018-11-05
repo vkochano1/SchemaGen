@@ -1,18 +1,21 @@
 #pragma once
 
+#include <Lib/FieldOp/Dump.h>
+#include <Lib/TypeTraits.h>
+
 [[[cog
 
 import renderers.namespace
 import renderers.common
 import renderers.field
+from model.common import *
 
 commonRenderer = renderers.common.Renderer(model, config)
-nsRenderer = renderers.namespace.Renderer(model, field.namespace)
+nsRenderer = renderers.namespace.Renderer(model, field.namespace())
 fieldRenderer = renderers.field.Renderer(model, field)
 
-cog.outl(fieldRenderer.generateEnumIncludes())
+cog.outl(fieldRenderer.generateDataTypeInclude())
 cog.outl(nsRenderer.generateNamespaceBegin())
-
 ]]]
 [[[end]]]
 [[[cog
@@ -71,7 +74,7 @@ public:
     using Namespace_t = Lib::string_t
     <
     [[[cog
-       cog.outl(commonRenderer.genCharList(field.namespace.fullName))
+       cog.outl(commonRenderer.genCharList(field.namespace().fullName))
     ]]]
     [[[end]]]
     >;
@@ -86,12 +89,12 @@ public:
     [[[end]]]
 
     [[[cog
-      if dataType.isString != True:
+      if dataType.propDataCategory() != PropDataCategory.String:
         cog.outl("{name} (const {dataType} & value) : {dataType} (value) {{}}".format(name=field.className, dataType=dataType.fullName))
     ]]]
     [[[end]]]
     [[[cog
-    if dataType.isString:
+    if dataType.propDataCategory() == PropDataCategory.String:
       cog.outl("""
       {name} (const Lib::String& value): {dataType} (value) {{}}
       {name} (const std::string& value): {dataType} (value) {{}}
@@ -101,11 +104,11 @@ public:
       using {dataType}::operator=;
 
       """.format(name=field.className, dataType=dataType.fullName), dedent = True)
-    elif dataType.isBoolean:
+    elif dataType.propDataCategory() == PropDataCategory.Boolean:
       cog.outl("""
       {name} (bool value): {dataType} (value) {{}}
       """.format(name=field.className, dataType=dataType.fullName), dedent = True)
-    elif dataType.enumeration:
+    elif dataType.propDataCategory() == PropDataCategory.Enumeration:
       cog.outl("""
       {name} ({dataType}::Enumeration value): {dataType} (value) {{}}
       {name} & operator =  ({dataType}::Enumeration value)

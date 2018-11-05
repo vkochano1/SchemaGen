@@ -9,6 +9,8 @@ class TemplateRouter(object):
 
     def routeObject(self):
         if self.modelObj.objectType() == ObjectType.Message:
+            if self.modelObj.isVector == True:
+                return "templates/message_vector.cog"
             if self.modelObj.countFields() == 0:
                 return "templates/message_no_props.cog"
             else:
@@ -40,9 +42,23 @@ class Renderer(object):
             for _, message in namespace.messagesByName.iteritems():
                 template = TemplateRouter(message).routeObject()
                 genApp.processFile(template, '%s/%s.h' % (dirMsgs, message.name), globals = { 'model' : self.schema, 'msg' : message, "config": self.cfg })
+
+            messages = [message for message in namespace.messagesByName.values ()]
+            if len(messages) > 0:
+                genApp.processFile("templates/messages.cog", '%s/../Messages.h' % (dirMsgs), globals = { 'model' : self.schema, 'msgs' : messages, "config": self.cfg })
+
             for _, enum in namespace.enumerations.iteritems():
                 template = TemplateRouter(enum).routeObject()
                 genApp.processFile(template, '%s/%s.h' % (dirEnums, enum.name), globals = { 'model' : self.schema, 'enum' : enum, "config":self.cfg })
+
+            enumerations = [enumeration for _, enumeration in namespace.enumerations.iteritems()]
+            if len(enumerations) > 0:
+                genApp.processFile("templates/enums.cog", '%s/../Enumerations.h' % (dirMsgs), globals = { 'model' : self.schema, 'enums' : enumerations, "config": self.cfg })
+
             for _, field in namespace.fieldByName.iteritems():
                 template = TemplateRouter(field).routeObject()
                 genApp.processFile(template, '%s/%s.h' % (dirFields, field.name), globals = { 'model' : self.schema, 'field' : field, "config":self.cfg })
+
+            fields = [field for field in namespace.fieldByName.values ()]
+            if len(fields) > 0:
+                genApp.processFile("templates/fields.cog", '%s/../Fields.h' % (dirMsgs), globals = { 'model' : self.schema, 'fields' : fields, "config": self.cfg })

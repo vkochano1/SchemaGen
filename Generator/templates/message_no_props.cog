@@ -5,7 +5,7 @@ import renderers.common
 
 commonRenderer = renderers.common.Renderer(model, config)
 msgRenderer = renderers.message.Renderer(model,msg)
-nsRenderer = renderers.namespace.Renderer(model,msg.namespace)
+nsRenderer = renderers.namespace.Renderer(model,msg.namespace())
 ]]]
 [[[end]]]
 #pragma once
@@ -107,7 +107,7 @@ public:
   using Namespace_t = Lib::string_t
   <
   [[[cog
-     cog.outl(commonRenderer.genCharList(msg.namespace.fullName))
+     cog.outl(commonRenderer.genCharList(msg.namespace().fullName))
   ]]]
   [[[end]]]
   >;

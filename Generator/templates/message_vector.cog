@@ -1,0 +1,198 @@
+[[[cog
+import renderers.message
+import renderers.namespace
+import renderers.common
+
+assert len(msg.props) == 1 and msg.isVector == True
+
+commonRenderer = renderers.common.Renderer(model, config)
+msgRenderer = renderers.message.Renderer(model,msg)
+nsRenderer = renderers.namespace.Renderer(model,msg.namespace())
+vectorElement = msgRenderer.genPropType(msg.props[0])
+]]]
+[[[end]]]
+#pragma once
+/*
+#include <Lib/ContainerTraits.h>
+*/
+[[[cog
+cog.outl(msgRenderer.generateIncludes())
+cog.outl(nsRenderer.generateNamespaceBegin())
+]]]
+[[[end]]]
+
+[[[cog
+pattern = """template <typename ContainerType = std::vector<{elementType}> >
+class {type}Type : public ContainerType, public Lib::ContainerTraits<ContainerType>::ContainerBase"""
+cog.outl(pattern.format(type=msg.className, elementType = vectorElement), dedent = True)
+]]]
+[[[end]]]
+{
+public:
+  using Base = ContainerType;
+  using Traits = Lib::ContainerTraits<ContainerType>;
+  using ObjectType = typename Traits::ObjectType;
+
+  [[[cog
+  pattern = """ static_assert(boost::is_same< ObjectType, {elementType} >::value, "Object type and Collection value must be the same");
+  using TypeDescriptor = Lib::TypeDescriptor
+  <
+    {type}Type, Base, Lib::CollectionType, true, ObjectType::TypeDescriptor::IsSafeToClone
+  >;
+  """
+  cog.outl(pattern.format(type=msg.className, elementType=vectorElement))
+  ]]]
+  [[[end]]]
+  static constexpr bool required(const ObjectType & )
+  {
+    return true;
+  }
+
+  template< class FIELD >
+  static constexpr std::enable_if_t<std::is_same< FIELD, ObjectType>::value, bool > required ()
+  {
+    return true;
+  }
+
+  size_t countAllFields () const
+  {
+    return ContainerType::size();
+  }
+
+  size_t countRequiredFields ( ) const
+  {
+    return countAllFields();
+  }
+
+  template<typename F, typename ...ARGS>
+  bool for_each( F && f, ARGS && ...args ) const
+  {
+    for (const auto& element : static_cast<const Base&> (*this) )
+    {
+      if (! Traits::bind(std::forward<const ObjectType>(element), std::forward<F>(f), std::forward<ARGS>(args)...) )
+        return false;
+    }
+    return true;
+  }
+
+  template<typename F, typename ...ARGS>
+  bool for_each( F && f, ARGS && ...args )
+  {
+    for (auto& element : static_cast<Base&> (*this) )
+    {
+      if (! Traits::bind(std::forward<ObjectType>(element), std::forward<F>(f), std::forward<ARGS>(args)...) )
+        return false;
+    }
+    return true;
+  }
+
+  template<typename F, typename ...ARGS>
+  bool for_each_required( F && f, ARGS && ...args ) const
+  {
+    return for_each(std::forward<F>(f), std::forward<ARGS> (args)...);
+  }
+
+  template<typename F, typename ...ARGS>
+  bool for_each_required( F && f, ARGS && ...args )
+  {
+    return for_each(std::forward<F>(f), std::forward<ARGS> (args)...);
+  }
+
+public:
+  [[[cog
+    cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = str(msg.tag)))
+  ]]]
+  [[[end]]]
+
+  [[[cog
+  cog.outl(commonRenderer.generateRevision())
+  ]]]
+  [[[end]]]
+
+  using ShortName_t = Lib::string_t
+  <
+   [[[cog
+      name = msg.displayName if msg.displayName else msg.name
+      cog.outl(commonRenderer.genCharList(name))
+   ]]]
+   [[[end]]]
+  >;
+  using Name_t = Lib::string_t
+  <
+  [[[cog
+     cog.outl(commonRenderer.genCharList(msg.fullName))
+  ]]]
+  [[[end]]]
+  >;
+
+  [[[cog
+    if msg.alias == None:
+      cog.outl("using Alias_t = Name_t;")
+    else:
+      aliasCharList = commonRenderer.genCharList(msg.alias)
+      cog.outl("""
+      using Alias_t = Lib::string_t
+      <
+      {aliasCharList}
+      >;
+      """.format(aliasCharList = aliasCharList), dedent = True);
+  ]]]
+  [[[end]]]
+
+  using Namespace_t = Lib::string_t
+  <
+  [[[cog
+     cog.outl(commonRenderer.genCharList(msg.namespace().fullName))
+  ]]]
+  [[[end]]]
+  >;
+
+  static constexpr boost::int32_t tag     () { return TAG; }
+  static constexpr const char * name      () { return Name_t::c_str(); }
+  static constexpr const char * shortName () { return ShortName_t::c_str(); }
+  static constexpr const char * alias     () { return Alias_t::c_str(); }
+
+  [[[cog
+    constructorBody = msgRenderer.constructorBody if msgRenderer.constructorBody else ''
+
+    cog.outl("""{name}Type () : Base()
+    {{
+      {constructorBody}
+    }}""".format(name = msg.className, constructorBody = constructorBody ), dedent = True)
+  ]]]
+  [[[end]]]
+  [[[cog
+      cog.outl("""
+      explicit
+      {name}Type (const Base & base)
+      :Base(base)
+      {{
+        {constructorBody}
+      }}
+      """.format(name = msg.className, constructorBody = constructorBody), dedent = True)
+  ]]]
+  [[[end]]]
+
+  Lib::LongString toString() const
+  {
+    Lib::LongString value;
+    Lib::StringOutputStream(value) << *this;
+    return value;
+  }
+
+  [[[cog
+  cog.outl("friend std::ostream& operator << (std::ostream& os, const {name}Type& value )".format(name = msg.className))
+  ]]]
+  [[[end]]]
+  {
+    Lib::FieldOp::Dump dumper(os);
+    dumper(value);
+    return os;
+  }
+};
+
+[[[cog
+cog.outl("typedef {type}Type<> {type};".format(type=msg.className))
+cog.outl(nsRenderer.generateNamespaceEnd())
+]]]
+[[[end]]]

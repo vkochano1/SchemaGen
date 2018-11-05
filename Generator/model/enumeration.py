@@ -11,6 +11,7 @@ class Enumeration(ModelObject):
         self.hasCustomStreamOut = None
         self.methods = []
         self.headerFile = self.fullName.replace("::","/")
+        self.rank = MAX_PROP_RANK
 
         for name, value in nameValueArr:
             if self.isIntEnum:
@@ -35,5 +36,5 @@ class Enumeration(ModelObject):
     def __str__(self):
         items = ", ".join( [ "%s:'%s'" % (str(k), str(v)) for k, v in self.nameValueDict.iteritems()] )
         return "\n{\n enum:'%s',\n is_int:'%s',\n items:{%s}\n}\n" % (
-         self.namespace.fullName + '::' + self.name, str(self.isIntEnum), items
+         self.fullName, str(self.isIntEnum), items
         )

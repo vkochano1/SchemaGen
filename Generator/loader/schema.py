@@ -20,8 +20,6 @@ class Loader(object):
         self.namespacesToVisit =  []
         self.rootFile = include.IncludeFile(filename, env, self.includedFiles)
 
-
-
     def traverseNamespace(self, element, parentNamespaceStr  = ''):
         if hasattr(element, 'Namespace'):
             for namespace in element.Namespace:

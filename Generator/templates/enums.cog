@@ -1,0 +1,6 @@
+[[[cog
+import renderers.common
+commonRenderer = renderers.common.Renderer(model, config)
+cog.outl(commonRenderer.genIncludes("Enumerations", enums)) 
+]]]
+[[[end]]]

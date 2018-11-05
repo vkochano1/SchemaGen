@@ -2,8 +2,13 @@
 
 #include <type_traits>
 #include <limits>
-//#include <brigand/sequences/set.hpp>
-
+/*#include <brigand/sequences/set.hpp>
+#include <Lib/Types.h>
+#include <Lib/Integer.h>
+#include <Lib/String.h>
+#include <LibC/ExceptionMacros.h>
+#include <Lib/FieldOp/Dump.h>
+*/
 [[[cog
 import renderers.namespace
 import renderers.common
@@ -11,7 +16,7 @@ import renderers.enumeration
 
 enumRenderer = renderers.enumeration.Renderer(model,enum)
 commonRenderer = renderers.common.Renderer(model, config)
-nsRenderer = renderers.namespace.Renderer(model, enum.namespace)
+nsRenderer = renderers.namespace.Renderer(model, enum.namespace())
 
 cog.outl(nsRenderer.generateNamespaceBegin())
 ]]]

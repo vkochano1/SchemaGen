@@ -53,7 +53,7 @@ class Namespace(ModelObject):
     def addEnum(self, enumeration):
         """Add enumeration to namespace"""
         self.enumerations[enumeration.name] = enumeration
-        enumDataType = model.datatype.DataType(enumeration.name,enumeration.namespace, enumeration = enumeration)
+        enumDataType = model.datatype.DataType(enumeration.name,enumeration.namespace(), enumeration = enumeration)
         self.addDataType(enumDataType)
 
     def addDataType(self, dataType):

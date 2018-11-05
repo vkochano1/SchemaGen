@@ -4,6 +4,7 @@ import sys
 import utils
 import model.datatype
 import model.schema
+from model.common import *
 
 @utils.singleton
 class Loader(object):
@@ -16,7 +17,7 @@ class Loader(object):
     ,model.datatype.DataType (name = "Double", namespace = self.libNamespace, isString = False, isSimpleType = True)
     ,model.datatype.DataType (name = "Integer", namespace = self.libNamespace, isString = False, isSimpleType = True)
     ,model.datatype.DataType (name = "Long", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "String", namespace = self.libNamespace, isString = True, isSimpleType = True)
+    ,model.datatype.DataType (name = "String", rank = 1, namespace = self.libNamespace, isString = True, isSimpleType = True)
     ,model.datatype.DataType (name = "LongString", namespace = self.libNamespace, isString = True, isSimpleType = True)
     ,model.datatype.DataType (name = "ShortString", namespace = self.libNamespace, isString = True, isSimpleType = True)
     ,model.datatype.DataType (name = "RegularString", namespace = self.libNamespace, isString = True, isSimpleType = True)
@@ -43,6 +44,16 @@ class Loader(object):
         isString = attrIsString.lower() == "true" if attrIsString else False
 
         attrHeaderFile = enumElement["HeaderFile"]
-        headerFile = attrIsString.lower() == "true" if attrHeaderFile else False
+        headerFile = attrHeaderFile if attrHeaderFile  else None
 
-        return model.datatype.DataType(name, namespace, isString = isString, headerFile = headerFile)
+        attrIsDerivedFromSimpleType = enumElement["IsDerivedFromSimpleType"]
+        isSimpleType = attrIsDerivedFromSimpleType.lower() == "true" if attrIsDerivedFromSimpleType else False
+
+        attrRank = enumElement["Rank"]
+        rank = int(attrRank) == "true" if attrRank else MAX_PROP_RANK
+
+        return model.datatype.DataType(name, namespace
+                                      , isSimpleType =  isSimpleType
+                                      , isString = isString
+                                      , headerFile = headerFile
+                                      , rank = rank)

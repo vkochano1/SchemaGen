@@ -12,6 +12,13 @@ class Renderer:
         self.constructorBody = None
         self.hasCustomEmptyMethod = False
 
+        def weight(prop):
+            if prop.propDataType().objectType() == ObjectType.Field:
+                return prop.propDataType().dataType.rank
+            else :
+                return MAX_PROP_RANK
+        self.sortedProps = sorted(self.message.props, key = weight)
+
         self.countPropsAll = len(self.message.props)
 
         for method in self.message.methods:
@@ -23,12 +30,12 @@ class Renderer:
         for prop in self.message.props:
             self.propMaxLen = max(self.propMaxLen, len(self.genPropType(prop)))
             self.hasMessageVectorProp = self.hasMessageVectorProp or (
-            prop.field.objectType() == ObjectType.Message and prop.field.isVector)
-            if prop.required == True:
+            prop.propDataType().objectType() == ObjectType.Message and prop.propDataType().isVector)
+            if prop.required() == True:
                 self.countPropsRequired = self.countPropsRequired + 1
     @staticmethod
     def generateInclDirForNamespace( obj):
-        return  '/'.join( obj.namespace.components[1:])
+        return  '/'.join( obj.namespace().components[1:])
 
     def genRightPaddedName(self, name):
         return name + ' ' * (self.propMaxLen - len(name))
@@ -38,7 +45,7 @@ class Renderer:
         for prop in self.message.props:
             if not prop.defaultValue:
                 continue
-            defaultInit = ",{name} ({value})".format(name=self.genRightPaddedName(prop.field.name), value=prop.defaultValue)
+            defaultInit = ",{name} ({value})".format(name=self.genRightPaddedName(prop.propDataType().name), value=prop.defaultValue)
             out.append(defaultInit)
         return '\n'.join(out)
 
@@ -56,7 +63,7 @@ class Renderer:
     def generateIncludes(self):
         out =  Renderer.generateMsgInclude(self.message.baseMessage) if self.message.baseMessage else ""
         for prop in self.message.props:
-            field = prop.field
+            field = prop.propDataType()
             out = out + Renderer.generateFieldInclude(field)
 
         return out
@@ -71,15 +78,15 @@ class Renderer:
     def applyMemberNamesToString(self, pattern, onlyRequired = False):
         def condition(prop, onlyRequired):
             if onlyRequired == True:
-                return prop.required == True
+                return prop.required() == True
             return True
 
         args = tuple([self.genRightPaddedName('_' + prop.name) for prop in self.message.props if condition(prop, onlyRequired)  ])
         return pattern % args
 
     def genPropType(self, prop):
-        prefix = renderers.common.Renderer.genQualifiedNS(prop.field, self.message.namespace)
-        return prefix + '::' +  prop.field.className if len(prefix) > 0 else prop.field.className
+        prefix = renderers.common.Renderer.genQualifiedNS(prop.propDataType(), self.message.namespace)
+        return prefix + '::' +  prop.propDataType().className if len(prefix) > 0 else prop.propDataType().className
 
     def genBaseClass(self):
         if self.message.baseMessage == None:
