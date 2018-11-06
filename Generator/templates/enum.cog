@@ -2,13 +2,13 @@
 
 #include <type_traits>
 #include <limits>
-/*#include <brigand/sequences/set.hpp>
+#include <brigand/sequences/set.hpp>
 #include <Lib/Types.h>
 #include <Lib/Integer.h>
 #include <Lib/String.h>
 #include <LibC/ExceptionMacros.h>
 #include <Lib/FieldOp/Dump.h>
-*/
+
 [[[cog
 import renderers.namespace
 import renderers.common
@@ -87,7 +87,7 @@ public:
 
     [[[cog
     cog.outl("{name} () {{ _value = Unk; }}".format(name=enum.name));
-    cog.outl("{name} (Enumeration value) {{ _value == value; }}".format(name=enum.name));
+    cog.outl("{name} (Enumeration value) {{ _value = value; }}".format(name=enum.name));
     ]]]
     [[[end]]]
 

@@ -33,4 +33,6 @@ class Field(ModelObject):
         if self.dataType == None:
             raise Exception('Failed to resolve datatype %s' % str(self.dataTypeName))
 
+        if self.attrs != None:
+            self.dataType.fullName = self.dataType.name + "<" + ','.join(self.attrs) + ">"
         self.__propDataCategory = self.dataType.propDataCategory()

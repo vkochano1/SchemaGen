@@ -12,9 +12,9 @@ vectorElement = msgRenderer.genPropType(msg.props[0])
 ]]]
 [[[end]]]
 #pragma once
-/*
+
 #include <Lib/ContainerTraits.h>
-*/
+
 [[[cog
 cog.outl(msgRenderer.generateIncludes())
 cog.outl(nsRenderer.generateNamespaceBegin())

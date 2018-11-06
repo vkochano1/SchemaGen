@@ -25,6 +25,7 @@ class Message(ModelObject):
         self.methods = [];
         self.injections = []
         self.isVector = False
+        self.dataType = self
         self.logger.debug("Created message %s(%s)" %(self.fullName, str(self.tag)))
 
     def addMethod(self, method):
@@ -66,7 +67,7 @@ class Message(ModelObject):
         field = self.namespace().resolveFieldByName(name)
         # fallback to message field
         if field == None:
-            field = self.namespace.resolveMessageByName(name)
+            field = self.namespace().resolveMessageByName(name)
 
         return field
 

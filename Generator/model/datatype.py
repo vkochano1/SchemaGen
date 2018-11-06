@@ -11,6 +11,11 @@ class DataType(ModelObject):
         self.isSimpleType = isSimpleType
         self.enumeration = enumeration
         self.headerFile = headerFile
+        if self.headerFile == None:
+            if enumeration != None:
+                self.headerFile = enumeration.namespace().fullName.replace("::", "/") + "/" + enumeration.name + ".h"
+            else:
+                self.headerFile = self.namespace().fullName.replace("::", "/") + "/" + name + ".h"
         self.rank = rank
 
         if enumeration != None:

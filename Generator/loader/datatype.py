@@ -37,19 +37,19 @@ class Loader(object):
              raise Exception("Failed to resolve datatype %s" % datatypeName)
         return resolved
 
-    def load(self, namespace, enumElement):
-        name = enumElement["Name"]
+    def load(self, namespace, dataTypeElement):
+        name = dataTypeElement["Name"]
 
-        attrIsString = enumElement["IsString"]
+        attrIsString = dataTypeElement["IsString"]
         isString = attrIsString.lower() == "true" if attrIsString else False
 
-        attrHeaderFile = enumElement["HeaderFile"]
+        attrHeaderFile = dataTypeElement["HeaderPath"]
         headerFile = attrHeaderFile if attrHeaderFile  else None
 
-        attrIsDerivedFromSimpleType = enumElement["IsDerivedFromSimpleType"]
+        attrIsDerivedFromSimpleType = dataTypeElement["IsDerivedFromSimpleType"]
         isSimpleType = attrIsDerivedFromSimpleType.lower() == "true" if attrIsDerivedFromSimpleType else False
 
-        attrRank = enumElement["Rank"]
+        attrRank = dataTypeElement["Rank"]
         rank = int(attrRank) == "true" if attrRank else MAX_PROP_RANK
 
         return model.datatype.DataType(name, namespace

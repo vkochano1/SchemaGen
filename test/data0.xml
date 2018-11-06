@@ -18,7 +18,8 @@
     <DataType Name="NT" HeaderFile="JJJJJJ.h"/>
     <Field Name="field1" Tag="34" DataType="NT"/>
     <Field Name="field3"  Tag="44" DataType="String"/>
-    <Field Name="field2"  Tag="444" DataType="String"/>
+    <Field Name="field2"  Tag="444" DataType="FixedBuffer[1000]"/>
+   
 
 
     <Message Name="SS" Tag="6765">

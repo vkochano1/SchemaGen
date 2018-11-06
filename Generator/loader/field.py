@@ -15,10 +15,10 @@ class Loader(object):
         }
         attrsStartPos = dataType.find('[')
         if attrsStartPos != -1:
-            attrsEndPos = dataType.find('[', attrsStartPos)
+            attrsEndPos = dataType.find(']', attrsStartPos)
             if attrsEndPos == -1:
                 raise Exception('Invalid data type %s ' % dataType )
             args["dataType"] = dataType[:attrsStartPos]
-            args["attrs"] =  [attr.strip for attr in dataType[attrsStartPos : attrsEndPos].split(',')]
+            args["attrs"] =  [attr.strip() for attr in dataType[attrsStartPos + 1 : attrsEndPos].split(',')]
 
         return model.field.Field(**args)

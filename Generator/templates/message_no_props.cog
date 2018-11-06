@@ -11,6 +11,23 @@ nsRenderer = renderers.namespace.Renderer(model,msg.namespace())
 #pragma once
 
 [[[cog
+
+includesForContainerBased="""#include <Lib/Types.h>
+#include <Lib/FieldTraits.h>
+#include <Lib/FieldOp/Clear.h>
+#include <Lib/FieldOp/IsEmpty.h>
+#include <Lib/FieldOp/Dump.h>
+#include <Lib/TypeTraits.h>
+#include <Lib/ContainerOp.h>
+
+#include <brigand/sequences/set.hpp>
+#include <brigand/sequences/append.hpp>
+#include <brigand/sequences/contains.hpp>
+#include <brigand/algorithms/all.hpp>
+"""
+if msg.baseMessage == None:
+  cog.outl(includesForContainerBased, dedent = True)
+
 cog.outl(msgRenderer.generateIncludes())
 cog.outl(nsRenderer.generateNamespaceBegin())
 ]]]
