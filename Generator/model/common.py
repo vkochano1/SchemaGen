@@ -49,6 +49,9 @@ class ModelObject(object):
     def propDataCategory(self):
         return self.__propDataCategory
 
+    def changePropDataCategory(self, newCategory):
+        self.__propDataCategory = newCategory
+
 class ObjectProperty(object):
     def __init__(self, objectPropertyType, name, required):
         self.__objectPropertyType = objectPropertyType

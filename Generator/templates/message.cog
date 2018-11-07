@@ -217,11 +217,17 @@ public:
     void set{name}(const {typeName} & field) {{_{name} = field;}}
     """;
 
+    patternCommon3 = """
+    void set{name}(const {typeName} & field) {{_{name} = field;}}
+    """;
     for prop in msg.props:
       cog.outl(patternCommon1.format(name=prop.name, typeName=msgRenderer.genPropType(prop) ))
       if prop.propDataType().dataType.propDataCategory() == PropDataCategory.String:
         cog.outl(patternForStrings.format(name=prop.name))
-      cog.outl(patternCommon2.format(name=prop.name, typeName=msgRenderer.genPropType(prop) ))
+      elif prop.propDataType().dataType.propDataCategory() == PropDataCategory.Message:
+        cog.outl(patternCommon2.format(name=prop.name, typeName=msgRenderer.genPropType(prop) ))
+      else:
+        cog.outl(patternCommon3.format(name=prop.name, typeName=prop.propDataType().fullName))
   ]]]
   [[[end]]]
 

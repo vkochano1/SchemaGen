@@ -33,7 +33,6 @@ class Config(object):
 class Loader(object):
     def __init__(self, projectFilePath):
         self.logger = logging.getLogger(__name__)
-        loader.datatype.Loader()
         projDir, filename = os.path.split(projectFilePath)
         self.baseDir = os.path.abspath(projDir)
         self.projectFile = untangle.parse(projectFilePath)
@@ -60,6 +59,7 @@ class Loader(object):
                 skipNamespaces = prop.cdata if prop.cdata else ''
 
         cfg = Config(self.baseDir, includeDirs, outDir, schemaFile, logName, skipNamespaces)
+        loader.datatype.Loader()
         schemaLoader = loader.schema.Loader(schemaFile, cfg.env)
         self.schemas.append((schemaLoader, cfg))
 

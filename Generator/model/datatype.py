@@ -2,7 +2,7 @@ from common import *
 
 class DataType(ModelObject):
     def __init__(self, name, namespace
-                , isSimpleType = True
+                , isSimpleType = False
                 , isString = False
                 , enumeration = None
                 , headerFile = None
@@ -19,10 +19,12 @@ class DataType(ModelObject):
         self.rank = rank
 
         if enumeration != None:
-            self.__propDataCategory = PropDataCategory.Enumeration
+            self.changePropDataCategory(PropDataCategory.Enumeration)
         elif isString == True:
-            self.__propDataCategory = PropDataCategory.String
+            self.changePropDataCategory(PropDataCategory.String)
         elif name == "Flag" or name == "Boolean":
-            self.__propDataCategory = PropDataCategory.Boolean
+            self.changePropDataCategory(PropDataCategory.Boolean)
+        else:
+            self.changePropDataCategory(PropDataCategory.Other)
 
-        self.logger.debug("Created data type {name}".format(name = self.name) )
+        self.logger.debug("Created data type {name} ({category})".format(name = self.name, category =str(self.propDataCategory())) )

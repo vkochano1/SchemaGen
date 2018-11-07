@@ -239,16 +239,16 @@ public:
             default:
             break;
         };
-
-        LIB_THROW
-        (
-          std::invalid_argument,
-          [[[cog
-            cog.outl(""""{name} value <" << value << "> is invalid for parsing format " << long (format) """.format(name=enum.name))
-          ]]]
-          [[[end]]]
-        );
       }
+      
+      LIB_THROW
+      (
+        std::invalid_argument,
+        [[[cog
+          cog.outl(""""{name} value <" << value << "> is invalid for parsing format " << long (format) """.format(name=enum.name))
+        ]]]
+        [[[end]]]
+      );
     }
 
     template<typename F, typename ...ARGS>

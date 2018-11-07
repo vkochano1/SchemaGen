@@ -17,7 +17,7 @@
   <Namespace Name="Z::G::NameX">
     <DataType Name="NT" HeaderFile="JJJJJJ.h"/>
     <Field Name="field1" Tag="34" DataType="NT"/>
-    <Field Name="field3"  Tag="44" DataType="String"/>
+    <Field Name="field3"  Tag="44" DataType="RegularString"/>
     <Field Name="field2"  Tag="444" DataType="FixedBuffer[1000]"/>
    
 
@@ -30,7 +30,7 @@
     </Message>
 
     <Message Name="Inj" Extends="BaseM" Tag="1236">
-      <Property Name="field7" Required="True"/>
+	    <Property Name="field7" Required="True"/>
     </Message>
 
     <Enumeration Name="En">

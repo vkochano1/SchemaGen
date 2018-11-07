@@ -49,7 +49,7 @@ public:
   [[[cog
     if msg.baseMessage != None:
       cog.outl("""
-      using FieldSet_t = Base::FieldSet;
+      using FieldSet_t = Base::FieldSet_t;
       using Fields = FieldSet_t;
 
       using TypeDescriptor = Lib::TypeDescriptor
@@ -178,19 +178,19 @@ public:
   template<typename F, typename ...ARGS>
   bool for_each( F && f, ARGS && ...args )
   {
-    return Base::for_each(std::forward<F> (f), std::forward<ARGS>(args)...));
+    return Base::for_each(std::forward<F> (f), std::forward<ARGS>(args)...);
   }
 
   template<typename F, typename ...ARGS>
   bool for_each( F && f, ARGS && ...args ) const
   {
-    return Base::for_each(std::forward<F> (f), std::forward<ARGS>(args)...) );
+    return Base::for_each(std::forward<F> (f), std::forward<ARGS>(args)...);
   }
 
   template<typename F, typename ...ARGS>
   bool for_each_required( F && f, ARGS && ...args )
   {
-    return Base::for_each_required(std::forward<F> (f), std::forward<ARGS>(args)...) )
+    return Base::for_each_required(std::forward<F> (f), std::forward<ARGS>(args)...);
   }
 
   template<typename F, typename ...ARGS>

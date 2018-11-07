@@ -3,7 +3,7 @@ from common import *
 
 class Enumeration(ModelObject):
     def __init__(self, name, namespace, nameValueArr, storageType = None):
-        super(Enumeration, self).__init__(ObjectType.Enumeration, namespace, name)
+        super(Enumeration, self).__init__(ObjectType.Enumeration, namespace, name, PropDataCategory.Enumeration)
         self.nameValueArr = nameValueArr
         self.isIntEnum = True
         self.hasUnk = False

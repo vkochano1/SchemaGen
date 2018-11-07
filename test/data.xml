@@ -23,10 +23,10 @@
       <Field Name="fieldN"  Tag="4434784" DataType="Z::G::NameX::NT"/>
       <Import Namespace="Z::G"/>
 
-      <Message Name="Message" Alias="JSDS" Extends="NameX::BaseM" Injects="NameX::Inj" Tag="123">
+      <Message Name="Message" Alias="JSDS" Extends="NameX::BaseM"  Tag="123">
         <Property Name="NameX::field1" Required="True"/>
         <Property Name="NameX::field2"  Required="True" />
-        <!--<Injects Name="NameX::Inj"  Required="True"/> -->
+        <Property Name="NameX::Inj"  Required="True"/> 
         <Property Name="field4"  Required="False"  />
         <Property Name="Z::J::field10"  Required="True"/>
         <Property Name="fieldN"  Required="True"/>
