@@ -118,8 +118,3 @@ class Message(ModelObject):
 
     def __repr__(self):
         return str(self.__dict__)
-
-class Payload(Message):
-    def __init__(self, namespace, name):
-        super(Payload, self).__init__(namespace, name)
-        self.objectType = ObjectType.Payload

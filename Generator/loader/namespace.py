@@ -55,3 +55,9 @@ class Loader(object):
         if hasattr(currentEl, 'Message'):
             for messageElement in currentEl.Message:
                 namespace.addMessage(loader.message.Loader.load(namespace, messageElement))
+
+    @staticmethod
+    def processPayload(currentEl, namespace):
+        if hasattr(currentEl, 'Payload'):
+            for messageElement in currentEl.Message:
+                namespace.addPayload(loader.payload.Loader.load(namespace, messageElement))

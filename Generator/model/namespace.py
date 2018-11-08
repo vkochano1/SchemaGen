@@ -49,6 +49,11 @@ class Namespace(ModelObject):
         self.messagesByTag[message.tag] = message
         self.messagesByName[message.name] = message
 
+    def addPayload(self, payload):
+        """Add payload to namespace"""
+        self.payloadsByTag[message.tag] = payload
+        self.payloadsByName[message.name] = payload
+
     def addEnum(self, enumeration):
         """Add enumeration to namespace"""
         self.enumerations[enumeration.name] = enumeration

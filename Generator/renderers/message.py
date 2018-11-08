@@ -64,7 +64,10 @@ class Renderer:
         out =  Renderer.generateMsgInclude(self.message.baseMessage) if self.message.baseMessage else ""
         for prop in self.message.props:
             field = prop.propDataType()
-            out = out + Renderer.generateFieldInclude(field)
+            if field.objectType() == ObjectType.Message:
+                out = out + Renderer.generateMsgInclude(field)
+            else:
+                out = out + Renderer.generateFieldInclude(field)
 
         return out
 

@@ -227,7 +227,7 @@ public:
       elif prop.propDataType().dataType.propDataCategory() == PropDataCategory.Message:
         cog.outl(patternCommon2.format(name=prop.name, typeName=msgRenderer.genPropType(prop) ))
       else:
-        cog.outl(patternCommon3.format(name=prop.name, typeName=prop.propDataType().fullName))
+        cog.outl(patternCommon3.format(name=prop.name, typeName=prop.propDataType().dataType.fullName))
   ]]]
   [[[end]]]
 
