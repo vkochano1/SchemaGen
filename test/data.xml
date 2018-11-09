@@ -20,6 +20,8 @@
 
     <Namespace Name="Z::F" >
 
+      <SchemaOffset Enumeration="En2" Value="F3"/>
+
       <Field Name="fieldN"  Tag="4434784" DataType="Z::G::NameX::NT"/>
       <Import Namespace="Z::G"/>
 

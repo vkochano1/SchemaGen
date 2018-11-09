@@ -7,8 +7,6 @@
 #include <Lib/Integer.h>
 #include <Lib/String.h>
 #include <LibC/ExceptionMacros.h>
-#include <Lib/FieldOp/Dump.h>
-
 [[[cog
 import renderers.namespace
 import renderers.common
@@ -21,6 +19,13 @@ nsRenderer = renderers.namespace.Renderer(model, enum.namespace())
 cog.outl(nsRenderer.generateNamespaceBegin())
 ]]]
 [[[end]]]
+[[[cog
+if enum.hasCustomStreamOut:
+  cog.outl("#include <Lib/FieldOp/Dump.h>")
+]]]
+[[[end]]]
+
+
 [[[cog
         cog.outl("class {name} : public Lib::EnumerationType".format(name = enum.name))
 ]]]
@@ -240,7 +245,7 @@ public:
             break;
         };
       }
-      
+
       LIB_THROW
       (
         std::invalid_argument,

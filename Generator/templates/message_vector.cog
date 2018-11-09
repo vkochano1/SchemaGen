@@ -100,7 +100,7 @@ public:
 
 public:
   [[[cog
-    cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = str(msg.tag)))
+    cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = commonRenderer.genTagVal(msg)))
   ]]]
   [[[end]]]
 

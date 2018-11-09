@@ -37,7 +37,7 @@ public:
     [[[end]]]
 
     [[[cog
-      cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = str(field.tag)))
+      cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = commonRenderer.genTagVal(field)))
     ]]]
     [[[end]]]
 

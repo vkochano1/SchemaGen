@@ -9,7 +9,7 @@ class Loader(object):
             name = el["Name"]
             attrRequired = el["Required"]
             required = (attrRequired.lower() == "true") if attrRequired else False
-            defaultValue = el["Default"]
+            defaultValue = el["DefaultValue"]
             return  model.property.Property(name, required, defaultValue)
         elif el._name == 'Injects':
             name = el["Name"]

@@ -97,7 +97,7 @@ protected:
 
 public:
   [[[cog
-    cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = str(msg.tag)))
+    cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = commonRenderer.genTagVal(msg)))
   ]]]
   [[[end]]]
 
@@ -318,7 +318,7 @@ public:
     return false;
 
     [[[cog
-      pattern = "if( !f (%s, std::forward(args)...) ) return false;\n" * len(msg.props)
+      pattern = "if( !f (%s, std::forward<ARGS>(args)...) ) return false;\n" * len(msg.props)
       cog.outl(msgRenderer.applyMemberNamesToString(pattern))
     ]]]
     [[[end]]]
@@ -332,7 +332,7 @@ public:
     return false;
 
     [[[cog
-      pattern = "if( !f (%s, args...) ) return false;\n" * len(msg.props)
+      pattern = "if( !f (%s, std::forward<ARGS>(args)...) ) return false;\n" * len(msg.props)
       cog.outl(msgRenderer.applyMemberNamesToString(pattern))
     ]]]
     [[[end]]]
@@ -346,7 +346,7 @@ public:
     return false;
 
     [[[cog
-      pattern = "if( !f (%s, args...) ) return false;\n" * msgRenderer.countPropsRequired
+      pattern = "if( !f (%s, std::forward<ARGS>(args)...) ) return false;\n" * msgRenderer.countPropsRequired
       cog.outl(msgRenderer.applyMemberNamesToString(pattern, onlyRequired = True))
     ]]]
     [[[end]]]
@@ -360,7 +360,7 @@ public:
     return false;
 
     [[[cog
-      pattern = "if( !f (%s, args...) ) return false;\n" * msgRenderer.countPropsRequired
+      pattern = "if( !f (%s, std::forward<ARGS>(args)...) ) return false;\n" * msgRenderer.countPropsRequired
       cog.outl(msgRenderer.applyMemberNamesToString(pattern, onlyRequired = True))
     ]]]
     [[[end]]]
@@ -375,7 +375,7 @@ public:
     {
       [[[cog
       for prop in msg.props:
-        text = "case {type}::TAG: f(_{name}, std::forward(args)...); return true; break;" .format( type = msgRenderer.genPropType(prop), name=prop.name )
+        text = "case {type}::TAG: f(_{name}, std::forward<ARGS>(args)...); return true; break;" .format( type = msgRenderer.genPropType(prop), name=prop.name )
         cog.outl(text)
       ]]]
       [[[end]]]
@@ -400,22 +400,22 @@ public:
       patternToLower ="""case string_hash(0, {type}::ShortName_t::to_lower().c_str()):
                             if (!{type}::ShortName_t::to_lower().equal(name,nameLength))
                               break;
-                            f(_{name}, std::forward(args)...); return true; break;"""
+                            f(_{name}, std::forward<ARGS>(args)...); return true; break;"""
 
       patternRegular ="""case string_hash(0, {type}::ShortName_t::c_str()):
                             if (!{type}::ShortName_t::equal(name,nameLength))
                               break;
-                            f(_{name}, std::forward(args)...); return true; break;"""
+                            f(_{name}, std::forward<ARGS>(args)...); return true; break;"""
 
       longNameToLower="""case string_hash(0, {type}::Name_t::to_lower().c_str()):
                             if (!{type}::Name_t::to_lower().equal(name,nameLength))
                               break;
-                            f(_{name}, std::forward(args)...); return true; break;"""
+                            f(_{name}, std::forward<ARGS>(args)...); return true; break;"""
 
       longNameRegular ="""case string_hash(0, {type}::Name_t::c_str()):
                             if (!{type}::Name_t::equal(name,nameLength))
                               break;
-                            f(_{name}, std::forward(args)...); return true; break;"""
+                            f(_{name}, std::forward<ARGS>(args)...); return true; break;"""
 
       for prop in msg.props:
         shortName = prop.propDataType().name
@@ -453,7 +453,7 @@ public:
     {
       [[[cog
       for idx, prop in enumerate(msg.props):
-        text = "case {idx}: f(_{name}, std::forward(args)...); return (true); break;" .format( idx = str(idx), name=prop.name )
+        text = "case {idx}: f(_{name}, std::forward<ARGS>(args)...); return (true); break;" .format( idx = str(idx), name=prop.name )
         cog.outl(text)
       ]]]
       [[[end]]]

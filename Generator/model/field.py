@@ -34,5 +34,5 @@ class Field(ModelObject):
             raise Exception('Failed to resolve datatype %s' % str(self.dataTypeName))
 
         if self.attrs != None:
-            self.dataType.fullName = self.dataType.namespace().fullName + self.dataType.name + "<" + ','.join(self.attrs) + ">"
+            self.dataType.fullName = self.dataType.namespace().fullName + "::" + self.dataType.name + "<" + ','.join(self.attrs) + ">"
         self.__propDataCategory = self.dataType.propDataCategory()

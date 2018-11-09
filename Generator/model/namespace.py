@@ -3,6 +3,20 @@ import logging
 import model.datatype
 from common import *
 
+class SchemaOffset(ModelObject):
+    def __init__(self, namespace, enumName, enumValue):
+        super(SchemaOffset, self).__init__(ObjectType.Namespace, namespace, 'SchemaOffset')
+        self.__enumName = enumName
+        self.__enumValue  = enumValue
+        self.resolvedOffset = 0
+        self.logger.debug("Applied schema offset " +  self.__enumName)
+
+
+    def resolveLinks(self):
+        resolvedEnum = self.namespace().resolveDataTypeByName(self.__enumName)
+        assert resolvedEnum.propDataCategory() == PropDataCategory.Enumeration
+        self.resolvedOffset = int(resolvedEnum.enumeration.nameValueDict[self.__enumValue])
+
 class Namespace(ModelObject):
     def __init__(self, name, parentNamespace = None):
         super(Namespace, self).__init__(ObjectType.Namespace, parentNamespace, name)
@@ -25,7 +39,7 @@ class Namespace(ModelObject):
         self.importedNamespaces = {}
         self.importedNamespaceNames = set()
         self.importParentNamespaces_()
-
+        self.schemaOffset = None
         self.logger.debug('Created namespace %s' % (self.fullName))
 
     def __str__(self):
@@ -161,6 +175,9 @@ class Namespace(ModelObject):
 
         for name, field in self.fieldByName.iteritems():
             field.resolveLinks()
+
+        if self.schemaOffset != None:
+            self.schemaOffset.resolveLinks()
 
     def resolvefullPath_(self):
         """Calculate path from root namespace to the current namespace"""

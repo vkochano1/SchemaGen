@@ -16,6 +16,12 @@ class Renderer(object):
 
         return obj.namespace().fullName
 
+    def genTagVal(self, obj):
+        offset = obj.namespace().schemaOffset
+        if offset != None:
+            return "{tag} + {offset}".format(tag = str(obj.tag), offset = str(offset.resolvedOffset) )
+
+        return "{tag}".format(tag = obj.tag)
 
     @staticmethod
     def genIncludes(objCategory, collection):

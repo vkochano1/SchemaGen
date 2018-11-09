@@ -5,6 +5,7 @@ import loader.datatype
 import loader.message
 import loader.field
 import loader.enumeration
+import loader.schema_offset
 import utils
 
 class Loader(object):
@@ -23,6 +24,7 @@ class Loader(object):
         Loader.processEnumerations(namespaceEl, resolvedNamespace)
         Loader.processFields(namespaceEl, resolvedNamespace)
         Loader.processMessages(namespaceEl, resolvedNamespace)
+        Loader.processSchemaOffset(namespaceEl, resolvedNamespace)
         return resolvedNamespace
 
     @staticmethod
@@ -37,6 +39,13 @@ class Loader(object):
             for imp in currentEl.Import:
                 resolvedImportedNamespaceName = imp["Namespace"]
                 namespace.importNamespace(resolvedImportedNamespaceName)
+
+    @staticmethod
+    def processSchemaOffset(currentEl, namespace):
+        if hasattr(currentEl, 'SchemaOffset'):
+            for imp in currentEl.SchemaOffset:
+                schemaOffset = loader.schema_offset.Loader.load(namespace, imp)
+                namespace.schemaOffset = schemaOffset
 
     @staticmethod
     def processFields(currentEl, namespace):
