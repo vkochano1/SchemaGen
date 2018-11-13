@@ -168,11 +168,12 @@ public:
     Explicitly defined methods
 
   ******************************************************************************/
-  [[[cog]]]
+  [[[cog
   for method in msg.methods:
-    if method.name.contains("empty") or method.name.contains("constructor_body"):
+    if method.isConstructorBody():
       continue
-    cog.outl(method.declaration)
+    cog.outl(method.declaration())
+  ]]]
   [[[end]]]
 
   template<typename F, typename ...ARGS>

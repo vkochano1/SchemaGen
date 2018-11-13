@@ -33,8 +33,14 @@ class Namespace(ModelObject):
         self.dataTypes  = {}
         self.fieldByName  = {}
         self.messagesByName = {}
+        self.payloadsByName = {}
+        self.configurationsByName = {}
+
         self.fieldByTag   = {}
         self.messagesByTag = {}
+        self.payloadsByTag = {}
+        self.configurationsByTag = {}
+
         #imported namesapces
         self.importedNamespaces = {}
         self.importedNamespaceNames = set()
@@ -54,28 +60,30 @@ class Namespace(ModelObject):
         return 0 < len(self.enumerations) + len(self.messagesByName) + len(self.fieldByName)
 
     def addField(self, field):
-        """Add field to namespace"""
         self.fieldByTag[field.tag] = field
         self.fieldByName[field.name] = field
 
     def addMessage(self, message):
-        """Add message to namespace"""
         self.messagesByTag[message.tag] = message
         self.messagesByName[message.name] = message
 
     def addPayload(self, payload):
-        """Add payload to namespace"""
-        self.payloadsByTag[message.tag] = payload
-        self.payloadsByName[message.name] = payload
+        self.payloadsByTag[payload.tag] = payload
+        self.payloadsByName[payload.name] = payload
+
+    def addConfiguration(self, conf):
+        self.configurationsByTag[conf .tag] = conf
+        self.configurationsByName[conf.name] = conf
 
     def addEnum(self, enumeration):
-        """Add enumeration to namespace"""
         self.enumerations[enumeration.name] = enumeration
-        enumDataType = model.datatype.DataType(enumeration.name,enumeration.namespace(), isSimpleType = True, enumeration = enumeration)
+        enumDataType = model.datatype.DataType(
+            enumeration.name,enumeration.namespace()
+          , isSimpleType = True
+          , enumeration = enumeration)
         self.addDataType(enumDataType)
 
     def addDataType(self, dataType):
-        """Add datatype to namespace"""
         self.dataTypes[dataType.name] = dataType
 
     def addSubNamespace(self, namespaceName):
@@ -141,6 +149,20 @@ class Namespace(ModelObject):
         resolved = self.resolveByName_(leafName, prefix, "messagesByName", set())
         return resolved
 
+    def resolvePayloadByName(self, name):
+        """Payload element lookup for provided message name"""
+        self.logger.debug('Resolving payload %s'  % (str(name)))
+        (prefix, leafName) = utils.NamespacePath.splitFullName(name)
+        resolved = self.resolveByName_(leafName, prefix, "payloadsByName", set())
+        return resolved
+
+    def resolveConfigurationByName(self, name):
+        """COnfiguration element lookup for provided message name"""
+        self.logger.debug('Resolving configuration %s'  % (str(name)))
+        (prefix, leafName) = utils.NamespacePath.splitFullName(name)
+        resolved = self.resolveByName_(leafName, prefix, "configurationsByName", set())
+        return resolved
+
     def resolveFieldByName(self, name):
         """Field element lookup for provided field name"""
         self.logger.debug('Resolving field %s'  % (str(name)))
@@ -175,6 +197,12 @@ class Namespace(ModelObject):
 
         for name, field in self.fieldByName.iteritems():
             field.resolveLinks()
+
+        for name, payload in self.payloadsByName.iteritems():
+            payload.resolveLinks()
+
+        for name, configuration in self.configurationsByName.iteritems():
+            configuration.resolveLinks()
 
         if self.schemaOffset != None:
             self.schemaOffset.resolveLinks()

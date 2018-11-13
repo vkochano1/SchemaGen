@@ -3,6 +3,10 @@ import loader.common
 import model.namespace
 import loader.datatype
 import loader.message
+import loader.payload
+import loader.configuration
+
+
 import loader.field
 import loader.enumeration
 import loader.schema_offset
@@ -24,6 +28,8 @@ class Loader(object):
         Loader.processEnumerations(namespaceEl, resolvedNamespace)
         Loader.processFields(namespaceEl, resolvedNamespace)
         Loader.processMessages(namespaceEl, resolvedNamespace)
+        Loader.processPayloads(namespaceEl, resolvedNamespace)
+        Loader.processConfigurations(namespaceEl, resolvedNamespace)
         Loader.processSchemaOffset(namespaceEl, resolvedNamespace)
         return resolvedNamespace
 
@@ -66,7 +72,13 @@ class Loader(object):
                 namespace.addMessage(loader.message.Loader.load(namespace, messageElement))
 
     @staticmethod
-    def processPayload(currentEl, namespace):
+    def processPayloads(currentEl, namespace):
         if hasattr(currentEl, 'Payload'):
-            for messageElement in currentEl.Message:
-                namespace.addPayload(loader.payload.Loader.load(namespace, messageElement))
+            for payloadElement in currentEl.Payload:
+                namespace.addPayload(loader.payload.Loader.load(namespace, payloadElement))
+
+    @staticmethod
+    def processConfigurations(currentEl, namespace):
+        if hasattr(currentEl, 'Configuration'):
+            for payloadElement in currentEl.Configuration:
+                namespace.addConfiguration(loader.configuration.Loader.load(namespace, payloadElement))

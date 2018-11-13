@@ -36,10 +36,6 @@ cog.outl(msgRenderer.generateIncludes())
 cog.outl(nsRenderer.generateNamespaceBegin())
 
 payloadSize = payload.payloadSize
-tmp = payload.baseMessage
-while tmp != None:
-  payloadSize = payloadSize + tmp.payloadSize
-  tmp = tmp.baseMessage
 ]]]
 [[[end]]]
 
@@ -47,13 +43,12 @@ while tmp != None:
 #pragma pack (1)
 
 [[[cog
-  cog.outl("class {name} :  public {basename}".format(name = payload.className,basename= msgRenderer.genBaseClass()))
+  cog.outl("class {name} :  public Lib::PayloadType".format(name = payload.className))
 ]]]
 [[[end]]]
 public:
   typedef Lib::PayloadType Base;
   [[[cog
-    cog.outl("typedef {basename} Base".format(basename = msgRenderer.genBaseClass()))
     cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = commonRenderer.genTagVal(payload)))
   ]]]
   [[[end]]]
@@ -90,60 +85,21 @@ public:
   static constexpr const char * name      () { return Name_t::c_str(); }
   static constexpr const char * shortName () { return ShortName_t::c_str(); }
 
-  [[[cog
-    attrsForBase = []
-    attrByName = dict ( (attr.name, attr ) for attr in payload.attributes )
-
-    if payload.baseMessage != None:
-      attrsForBase = [ attrByName[baseProp.name] for baseProp in payload.baseMessage.props if attrByName.get(baseProp.name)]
-
-    initList = []
-    for attr in attrsForBase:
-      initList.append("_{attr} ({constVal})".format(name = payload.name, attr = attr.name, constVal  = attr.constValue))
-
-    pattern = """{name} () : {initList}
-    {{
-    }}
-    """.format(name = payload.name, initList = ",".join(initList))
-    cog.outl(pattern, dedent = True)
-  ]]]
-  [[[end]]]
-
-  [[[cog
-    pattern = """
-    {name} (const {name} & payload)
-      : Base(payload)
-    {{
-      *this = payload;
-    }}
-
-    {name}& operator = (const {name} & payload)
-    {{
-      using Bytes = std::array<char, sizeof({name})>;
-      reinterpret_cast<Bytes&>(*this) = reinterpret_cast<const Bytes&> (payload);
-      return *this;
-    }}"""
-    cog.outl(pattern.format(name=payload.name), dedent = True)
-  ]]]
-  [[[end]]]
-
   using ThisFieldSet = brigand::set
   <
     [[[cog
-      cog.outl(",\n".join([msgRenderer.genPropType(prop) for prop in payload.props]))
+      cog.outl(",\n".join(["const " + msgRenderer.genPropType(prop) for prop in payload.props]))
     ]]]
     [[[end]]]
   >;
 
-  using FieldSet_t = brigand::as_set<brigand::append<Base::FieldSet_t, ThisFieldSet> >;
-  using Fields     = FieldSet_t;
-
+  using FieldSet_t = ThisFieldSet;
 
   [[[cog
       cog.outl("""using TypeDescriptor = Lib::TypeDescriptor
       <
-      {type}, Base, Lib::PayloadType, true,
-      Base::TypeDescriptor::IsSafeToClone && brigand::all<ThisFieldSet, Lib::Traits::is_safe_to_clone<brigand::_1> >::value
+      {type}, Base,Lib::PayloadType, true,
+      brigand::all<ThisFieldSet, Lib::Traits::is_safe_to_clone<brigand::_1> >::value
       >;""".format(type=payload.className), dedent = True)
   ]]]
   [[[end]]]
@@ -161,7 +117,7 @@ public:
   }
 
   template<typename FIELD>
-  void get(FIELD & field) const
+  void get(FIELD& field) const
   {
     field = get_(Lib::Identity<FIELD>());
   }
@@ -173,26 +129,26 @@ public:
   static constexpr bool required() { return required_(Lib::Identity<FIELD>());}
 
   [[[cog
-    pattern = """
-    /*****************************************************************************
-      Setters and getters for {name}
-
-    ******************************************************************************/
-
-    const {typeName}& get{name} () const noexcept {{ return _{name}; }}
-          {typeName}& get{name} ()       noexcept {{ return _{name}; }}
-
-    using {name}Type = {typeName};
-
-    void set(const {typeName} & field) {{_{name} = field;}}
-    void set{name}(const {typeName} & field) {{_{name} = field;}}
-    """;
-
+    initList = []
+    initParams = []
     for prop in payload.props:
-      cog.outl(pattern.format(name=prop.name, typeName=msgRenderer.genPropType(prop) ))
+      initList.append("_{name}(value{name})".format(name=prop.name))
+      initParams.append("const {type}& value{name}".format(name = prop.name, type = msgRenderer.genPropType(prop)))
+
+    pattern = """{name} ({initParams}) : {initList}
+    {{
+    }}
+    """
+    if len(initParams) > 0:
+      cog.outl(pattern.format(name = payload.name, initParams = ",".join(initParams), initList = ",".join(initList)))
+    else:
+      noParams = """{name} ()
+      {{
+      }}
+      """
+      cog.outl(noParams)
   ]]]
   [[[end]]]
-
   template<typename F, typename ...ARGS>
   bool for_each( F && f, ARGS && ...args )
   {
@@ -232,11 +188,6 @@ public:
   void clear ()
   {
     Base::clear ();
-    [[[cog
-      for prop in payload.props:
-        cog.outl("_{name}.clear();".format(name=prop.name))
-    ]]]
-    [[[end]]]
   }
 
   [[[cog
@@ -255,8 +206,6 @@ protected:
 
   [[[cog
     pattern = """
-    {typeName} & get_(Lib::Identity<{typeName}>) noexcept {{ return _{name}; }}
-    {typeName} & get_(const Lib::Identity<{typeName}::ShortName_t>&) noexcept {{ return _{name}; }}
 
     const {typeName} & get_(Lib::Identity<{typeName}>) const noexcept {{ return _{name}; }}
     const {typeName} & get_(const Lib::Identity<{typeName}::ShortName_t>&) const noexcept {{ return _{name}; }}
@@ -271,7 +220,7 @@ protected:
     [[[cog
     for prop in payload.props:
       propName = msgRenderer.genRightPaddedName(msgRenderer.genPropType(prop))
-      cog.outl("{prop_padded} _{prop};".format(prop_padded = propName ,prop=prop.propDataType().name))
+      cog.outl("const {prop_padded} _{prop};".format(prop_padded = propName ,prop=prop.propDataType().name))
     ]]]
     [[[end]]]
 };

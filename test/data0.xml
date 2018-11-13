@@ -14,24 +14,48 @@
 
 
 
+
+
   <Namespace Name="Z::G::NameX">
     <DataType Name="NT" HeaderFile="JJJJJJ.h"/>
     <Field Name="field1" Tag="34" DataType="NT"/>
     <Field Name="field3"  Tag="44" DataType="RegularString"/>
-    <Field Name="field2"  Tag="444" DataType="FixedBuffer[1000]"/>
-   
+    <Field Name="field2"  Tag="444"  DataType="FixedBuffer[1000]"/>
+
 
 
     <Message Name="SS" Tag="6765">
 	    <Vector DataType="field1"/>
-    </Message>	    
+    </Message>
     <Message Name="BaseM" Tag="1236">
-      <Property Name="field3" Required="True"/>
+      <Method Name="constructor_body" Declaration="X=y;"/>
+      <Method Name="empty" Declaration="bool empty() const {return true;} "/>
+
+      <Property Name="field3" Required="True" DefaultValue="instance"/>
     </Message>
 
-    <Message Name="Inj" Extends="BaseM" Tag="1236">
+
+    <Payload Name="BaseJ" PayloadSize = "10" Tag="1236" IsAbstractHeader="true">
+      <Property Name="field1" Required="True" DefaultValue="instance"/>
+      <Property Name="field3" Required="True" DefaultValue="instance"/>
+    </Payload>
+
+    <Payload Name="BaseMJ" PayloadSize = "11" Extends="BaseJ" Tag="122336">
+      <Property Name="field7" Required="True"/>
+      <Attribute Name="field1" Required="True" ConstValue="ZZZZZ"/>
+      <Attribute Name="field2" Required="True" ConstValue="ZZZZZ2"/>
+
+    </Payload>
+
+    <Message Name="Inj" Extends="BaseM" PayloadSize="14" Tag="1236">
 	    <Property Name="field7" Required="True"/>
+      <Property Name="field2" Required="False" DefaultValue="abcd"/>
     </Message>
+
+    <Configuration Name="Conf" Extends="BaseM" Tag="1236">
+      <Property Name="field7" Required="True"/>
+      <Property Name="field2" Required="False" DefaultValue="abcd"/>
+    </Configuration>
 
     <Enumeration Name="En">
       <Item Name="F1" Value="'V'"/>

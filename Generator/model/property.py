@@ -1,6 +1,13 @@
 import logging
 from common import *
 
+class Attribute(ObjectProperty):
+    def __init__(self, name, constValue):
+        super(Attribute, self).__init__(ObjectPropertyType.Attribute, name, True)
+        self.constValue = constValue
+        self.logger.debug("Created Attribute %s" % (str(self.name)))
+
+
 class Property(ObjectProperty):
     def __init__(self, fieldName, required, defaultValue = None):
         super(Property, self).__init__(ObjectPropertyType.Property, fieldName, required)

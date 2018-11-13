@@ -79,7 +79,7 @@ public:
 protected:
   // Properties
   [[[cog
-  for prop in msg.props:
+  for prop in msgRenderer.sortedProps:
     propName = msgRenderer.genRightPaddedName(msgRenderer.genPropType(prop))
     cog.outl("{prop_padded} _{prop};".format(prop_padded = propName ,prop=prop.propDataType().name))
   ]]]
@@ -185,11 +185,12 @@ public:
     Explicitly defined methods
 
   ******************************************************************************/
-  [[[cog]]]
+  [[[cog
   for method in msg.methods:
-    if method.name.contains("empty") or method.name.contains("constructor_body"):
+    if method.isConstructorBody():
       continue
-    cog.outl(method.declaration)
+    cog.outl(method.declaration())
+  ]]]
   [[[end]]]
 
   [[[cog
@@ -303,7 +304,7 @@ public:
     [[[cog
       for prop in msg.props:
         if prop.defaultValue != None:
-          cog.outl("set{name}({defaultVal});".format(name=prop.name, defaultVal = prop.defaultValue))
+          cog.outl("set{name}({defaultVal});".format(name=prop.name, defaultVal = msgRenderer.quoteVal(prop)))
 
       if msgRenderer.constructorBody:
         cog.outl(constructorBody)

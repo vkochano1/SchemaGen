@@ -26,7 +26,7 @@ class Loader(object):
     ,model.datatype.DataType (name = "TimeDuration", namespace = self.libNamespace, isString = False, isSimpleType = True)
     ,model.datatype.DataType (name = "UtcDateTime", namespace = self.libNamespace, isString = False, isSimpleType = True)
     ,model.datatype.DataType (name = "LocalDateTime", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "FixedBuffer", namespace = self.libNamespace, isString = False, isSimpleType = True)
+    ,model.datatype.DataType (name = "FixedBuffer", namespace = self.libNamespace, rank=1, isString = False, isSimpleType = True)
     ,model.datatype.DataType (name = "FixedString", namespace = self.libNamespace, isString = False, isSimpleType = True)
     }
         self.defultDataTypesDict = dict( { (dtype.name, dtype) for dtype in self.defaultDataTypes } )
@@ -51,7 +51,7 @@ class Loader(object):
         isSimpleType = attrIsDerivedFromSimpleType.lower() == "true" if attrIsDerivedFromSimpleType else False
 
         attrRank = dataTypeElement["Rank"]
-        rank = int(attrRank) == "true" if attrRank else MAX_PROP_RANK
+        rank = int(attrRank) if attrRank else MAX_PROP_RANK
 
         return model.datatype.DataType(name, namespace
                                       , isSimpleType =  isSimpleType

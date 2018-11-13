@@ -1,3 +1,4 @@
+import model.common
 class Loader(object):
     @staticmethod
     def processMethods(modelObj, element):
@@ -5,4 +6,4 @@ class Loader(object):
             for method in element.Method:
                 name = method["Name"]
                 declaration = method["Declaration"]
-                modelObj.addMethod((name, declaration))
+                modelObj.addMethod(model.common.Method(name, declaration))

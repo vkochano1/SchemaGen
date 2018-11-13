@@ -17,7 +17,7 @@ class DataType(ModelObject):
             else:
                 self.headerFile = self.namespace().fullName.replace("::", "/") + "/" + name + ".h"
         self.rank = rank
-
+    
         if enumeration != None:
             self.changePropDataCategory(PropDataCategory.Enumeration)
         elif isString == True:

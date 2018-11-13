@@ -28,6 +28,23 @@ class PropDataCategory(Enum):
     Other             = 7
     NotResolved       = 8
 
+class Method(object):
+    def __init__(self, name, declaration):
+        self.__name = name
+        self.__declaration = declaration
+
+    def name(self): return self.__name
+    def declaration(self): return self.__declaration
+
+    def isOutOperator(self):
+        return  self.__name.find("operator<<") != -1
+
+    def isConstructorBody(self):
+        return  self.__name.find("constructor_body") != -1
+
+    def isEmptyFunction(self):
+        return  self.__name.find("empty")  != -1
+
 class ModelObject(object):
     def __init__(self, objectType, namespace, name, propDataCategory = PropDataCategory.NotResolved):
         self.__objectType = objectType

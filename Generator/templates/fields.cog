@@ -10,7 +10,7 @@ namespace = fields[0].namespace()
 commonRenderer = renderers.common.Renderer(model, config)
 nsRenderer = renderers.namespace.Renderer(model, namespace)
 
-tags = [field.tag for field in fields]
+tags = [int(field.tag) for field in fields]
 minTag = min(tags)
 maxTag = max(tags)
 

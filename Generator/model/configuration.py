@@ -4,7 +4,7 @@ import logging
 import utils
 from common import *
 
-class Payload(model.message.Message):
+class Configuration(model.message.Message):
     def __init__(self, name, tag, namespace
                 , basename = None
                 , isAbstract = False
@@ -12,22 +12,17 @@ class Payload(model.message.Message):
                 , usingNamespace = None
                 , alias = None
                 , displayName = None
-                , isAbstractHeader = True
-                , payloadSize = 0):
-        super(Payload, self).__init__(name, tag, namespace, basename = basename)
-        self.isAbstractHeader = isAbstractHeader
-        self._ModelObject__objectType = ObjectType.Payload
-        self.attributes = []
-        self.payloadSize = payloadSize
-        self.isAbstractHeader = isAbstractHeader
-
-    def addAttribute(self, attr):
-        self.attributes.append(attr)
+                , isAbstractHeader = True):
+        super(Configuration, self).__init__(name, tag, namespace)
+        self._ModelObject__objectType = ObjectType.Configuration
 
     def resolveBase(self):
         if None == self.basename:
             return None
-        resolvedMsg = self.namespace().resolvePayloadByName(self.basename)
+        resolvedMsg = self.namespace().resolveConfigurationByName(self.basename)
+
+        if not resolvedMsg:
+            resolvedMsg = self.namespace().resolveMessageByName(self.basename)
         if resolvedMsg == None:
             raise Exception('Failed to resolve base class %s' % self.basename)
         return resolvedMsg

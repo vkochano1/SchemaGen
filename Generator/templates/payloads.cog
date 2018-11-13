@@ -1,0 +1,111 @@
+#pragma once
+[[[cog
+import renderers.namespace
+import renderers.common
+import renderers.field
+
+assert len(payloads) > 0
+namespace = payloads[0].namespace()
+commonRenderer = renderers.common.Renderer(model, config)
+nsRenderer = renderers.namespace.Renderer(model, namespace)
+
+tags = [int(payload.tag) for payload in payloads]
+minTag = min(tags)
+maxTag = max(tags)
+
+cog.outl(commonRenderer.genIncludes("Payloads", payloads))
+cog.outl(nsRenderer.generateNamespaceBegin())
+]]]
+[[[end]]]
+
+class Payloads
+{
+public:
+  [[[cog
+  cog.out(commonRenderer.generateRevision())
+  ]]]
+  [[[end]]]
+  [[[cog
+    cog.out("enum {{ MIN_TAG = {minTag}, MAX_TAG = {maxTag}  }};".format(minTag = str(minTag), maxTag = str(maxTag)))
+  ]]]
+  [[[end]]]
+
+  template<typename F, typename ...ARGS>
+  bool bind(boost::int32_t tag, F && f, ARGS && ...args)
+  {
+    switch (tag)
+    {
+      [[[cog
+      for payload in payloads:
+        text = "case {type}::TAG: f.TEMPLATE_OPERATOR({type}) (std::forward<ARGS>(args)...); return true; break;" .format( type = payload.className )
+        cog.outl(text)
+      ]]]
+      [[[end]]]
+
+      default:
+      break;
+    }
+
+    return false;
+  }
+
+  template<typename F, typename ...ARGS>
+  bool bind(const char* name, F && f, ARGS && ...args)
+  {
+    using Lib::detail::string_hash;
+    size_t nameLength = 0;
+    auto hashValue = string_hash(0, name, &nameLength);
+    switch (hashValue)
+    {
+      [[[cog
+      patternToLower ="""case string_hash(0, {type}::ShortName_t::to_lower().c_str()):
+                            if (!{type}::ShortName_t::to_lower().equal(name,nameLength))
+                              break;
+                            f.TEMPLATE_OPERATOR({type}) (std::forward<ARGS>(args)...); return true; break;"""
+
+      patternRegular ="""case string_hash(0, {type}::ShortName_t::c_str()):
+                            if (!{type}::ShortName_t::equal(name,nameLength))
+                              break;
+                            f.TEMPLATE_OPERATOR({type}) (std::forward<ARGS>(args)...); return true; break;"""
+
+      longNameToLower="""case string_hash(0, {type}::Name_t::to_lower().c_str()):
+                            if (!{type}::Name_t::to_lower().equal(name,nameLength))
+                              break;
+                            f.TEMPLATE_OPERATOR({type}) (std::forward<ARGS>(args)...); return true; break;"""
+
+      longNameRegular ="""case string_hash(0, {type}::Name_t::c_str()):
+                            if (!{type}::Name_t::equal(name,nameLength))
+                              break;
+                            f.TEMPLATE_OPERATOR({type}) (std::forward<ARGS>(args)...); return true; break;"""
+
+      for payload in payloads:
+        shortName = payload.name
+        longName = payload.fullName
+        propType = payload.className
+
+        if longName.lower() != longName:
+          cog.outl(longNameToLower.format(type=propType, name=payload.name))
+
+        cog.outl(longNameRegular.format(type=propType, name=payload.name))
+
+        if shortName.lower() != shortName:
+          cog.outl(patternToLower.format(type=propType, name=payload.name))
+
+        cog.outl(patternRegular.format(type=propType, name=payload.name))
+
+    ]]]
+    [[[end]]]
+
+    default:
+    break;
+  }
+
+  return false;
+  }
+
+};
+
+[[[cog
+cog.outl(nsRenderer.generateNamespaceEnd())
+]]]
+[[[end]]]

@@ -4,32 +4,31 @@ import model.payload
 
 class Loader(object):
     @staticmethod
-    def processMessageProperties(message, messageElement):
+    def processPayloadProperties(payload, messageElement):
         propLoader = property.Loader()
         for el in  messageElement.get_elements():
-            if el._name in ['Property', 'Injects']:
-                message.addProperty(propLoader.load(el))
+            if el._name == 'Attribute':
+                attr = model.property.Attribute(el["Name"], el["ConstValue"])
+                payload.addAttribute(attr)
+            elif el._name == 'Property':
+                payload.addProperty(propLoader.load(el))
 
     @staticmethod
-    def load(namespace, messageElement):
-        injects = messageElement["Injects"]
+    def load(namespace, payloadElement):
 
         msgArgs = {
-        "name" : messageElement["Name"],
+        "name" : payloadElement["Name"],
         "namespace" : namespace,
-        "tag" : messageElement["Tag"],
-        "isAbstract" : messageElement["Abstract"] or False,
-        "isPolymorphic" : messageElement["Polymorphic"] or False,
-        "basename" : messageElement["Extends"],
-        "isAbstractHeader" : messageElement["isAbstractHeader"] or False
+        "tag" : payloadElement["Tag"],
+        "basename" : payloadElement["Extends"],
+        "isAbstractHeader" : payloadElement["IsAbstractHeader"].lower() == "true" if payloadElement["IsAbstractHeader"] else False,
+        "payloadSize" : int(payloadElement["PayloadSize"])
         }
 
-        message = model.message.Payload(**msgArgs);
-        if injects != None:
-            message.addProperty( model.property.InjectionProperty(injects))
+        payload = model.payload.Payload(**msgArgs);
 
-        Loader.processMessageProperties(message, messageElement)
+        Loader.processPayloadProperties(payload, payloadElement)
 
-        loader.common.Loader.processMethods(message, messageElement)
+        loader.common.Loader.processMethods(payload, payloadElement)
 
-        return message
+        return payload

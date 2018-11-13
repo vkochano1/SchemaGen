@@ -17,5 +17,6 @@ class Loader(object):
         elif el._name == 'Vector':
             name = el["DataType"]
             return model.property.VectorProperty(name)
+            
 
-        raise 'Invalid property element'
+        raise Exception('Invalid property element')

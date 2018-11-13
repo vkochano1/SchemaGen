@@ -9,7 +9,7 @@ namespace = msgs[0].namespace()
 commonRenderer = renderers.common.Renderer(model, config)
 nsRenderer = renderers.namespace.Renderer(model, namespace)
 
-tags = [msg.tag for msg in msgs]
+tags = [int(msg.tag) for msg in msgs]
 minTag = min(tags)
 maxTag = max(tags)
 
@@ -37,7 +37,7 @@ public:
     {
       [[[cog
       for mag in msgs:
-        text = "case {type}::TAG: f.TEMPLATE_OPERATOR({type}) (std::forward(args)...); return true; break;" .format( type = msg.className )
+        text = "case {type}::TAG: f.TEMPLATE_OPERATOR({type}) (std::forward<ARGS>(args)...); return true; break;" .format( type = msg.className )
         cog.outl(text)
       ]]]
       [[[end]]]
@@ -61,22 +61,22 @@ public:
       patternToLower ="""case string_hash(0, {type}::ShortName_t::to_lower().c_str()):
                             if (!{type}::ShortName_t::to_lower().equal(name,nameLength))
                               break;
-                            f.TEMPLATE_OPERATOR({type}) (std::forward(args)...); return true; break;"""
+                            f.TEMPLATE_OPERATOR({type}) (std::forward<ARGS>(args)...); return true; break;"""
 
       patternRegular ="""case string_hash(0, {type}::ShortName_t::c_str()):
                             if (!{type}::ShortName_t::equal(name,nameLength))
                               break;
-                            f.TEMPLATE_OPERATOR({type}) (std::forward(args)...); return true; break;"""
+                            f.TEMPLATE_OPERATOR({type}) (std::forward<ARGS>(args)...); return true; break;"""
 
       longNameToLower="""case string_hash(0, {type}::Name_t::to_lower().c_str()):
                             if (!{type}::Name_t::to_lower().equal(name,nameLength))
                               break;
-                            f.TEMPLATE_OPERATOR({type}) (std::forward(args)...); return true; break;"""
+                            f.TEMPLATE_OPERATOR({type}) (std::forward<ARGS>(args)...); return true; break;"""
 
       longNameRegular ="""case string_hash(0, {type}::Name_t::c_str()):
                             if (!{type}::Name_t::equal(name,nameLength))
                               break;
-                            f.TEMPLATE_OPERATOR({type}) (std::forward(args)...); return true; break;"""
+                            f.TEMPLATE_OPERATOR({type}) (std::forward<ARGS>(args)...); return true; break;"""
 
       for msg in msgs:
         shortName = msg.name

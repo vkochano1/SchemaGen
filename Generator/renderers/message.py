@@ -17,14 +17,14 @@ class Renderer:
                 return prop.propDataType().dataType.rank
             else :
                 return MAX_PROP_RANK
-        self.sortedProps = sorted(self.message.props, key = weight)
 
+        self.sortedProps = sorted(self.message.props, key = weight)
         self.countPropsAll = len(self.message.props)
 
         for method in self.message.methods:
-            if method.name == "constructor_body":
-                self.constructorBody = method.declaration
-            elif method.name == "empty":
+            if method.isConstructorBody():
+                self.constructorBody = method.declaration()
+            elif method.isEmptyFunction():
                 self.hasCustomEmptyMethod = True
 
         for prop in self.message.props:
@@ -40,12 +40,20 @@ class Renderer:
     def genRightPaddedName(self, name):
         return name + ' ' * (self.propMaxLen - len(name))
 
+    def quoteVal(self, prop):
+        if prop.propDataType().dataType.propDataCategory() == PropDataCategory.String and (
+            prop.defaultValue.find("::") == -1 and  prop.defaultValue.find("(")  == -1
+        ):
+            return "\""+ prop.defaultValue + "\""
+        return prop.defaultValue
+
     def genDefaultVals(self):
         out = []
-        for prop in self.message.props:
+        for prop in self.sortedProps:
             if not prop.defaultValue:
                 continue
-            defaultInit = ",{name} ({value})".format(name=self.genRightPaddedName(prop.propDataType().name), value=prop.defaultValue)
+            defaultInit = """,_{name} ({value})""".format(name=self.genRightPaddedName(prop.propDataType().name)
+                                                           , value=self.quoteVal(prop))
             out.append(defaultInit)
         return '\n'.join(out)
 
