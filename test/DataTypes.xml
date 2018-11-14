@@ -1,0 +1,19 @@
+<Schema>
+<Namespace Name="Lib">
+
+  <DataType Name="Boolean" TypeRank="1" IsDerivedFromSimpleType="true"/>
+  <DataType Name="Flag" TypeRank="1" IsDerivedFromSimpleType="true"/>
+  <DataType Name="Double" TypeRank="1" IsDerivedFromSimpleType="true"/>
+  <DataType Name="Integer" TypeRank="1" IsDerivedFromSimpleType="true"/>
+  <DataType Name="Long" TypeRank="1" IsDerivedFromSimpleType="true"/>
+  <DataType Name="Price" TypeRank="1" IsDerivedFromSimpleType="true"/>
+  <DataType Name="String" TypeRank="1" IsDerivedFromSimpleType="true" IsString="true"/>
+  <DataType Name="RegularString" TypeRank="1" IsDerivedFromSimpleType="true" HeaderPath="Lib/String.h" IsString="true"/>
+  <DataType Name="LongString" TypeRank="1" IsDerivedFromSimpleType="true" HeaderPath="Lib/String.h" IsString="true"/>
+  <DataType Name="ShortString" TypeRank="1" IsDerivedFromSimpleType="true" HeaderPath="Lib/String.h" IsString="true"/>
+  <DataType Name="FixedString[*]" TypeRank="1" IsDerivedFromSimpleType="true" HeaderPath="Lib/String.h" IsString="true"/>
+  <DataType Name="FixedBuffer[*]" TypeRank="1" IsDerivedFromSimpleType="true" HeaderPath="Lib/String.h" IsString="true"/>
+
+</Namespace>
+
+</Schema>
