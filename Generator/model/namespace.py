@@ -11,7 +11,6 @@ class SchemaOffset(ModelObject):
         self.resolvedOffset = 0
         self.logger.debug("Applied schema offset " +  self.__enumName)
 
-
     def resolveLinks(self):
         resolvedEnum = self.namespace().resolveDataTypeByName(self.__enumName)
         assert resolvedEnum.propDataCategory() == PropDataCategory.Enumeration

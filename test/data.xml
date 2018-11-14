@@ -2,11 +2,9 @@
 <Schema>
 
 
-
-<!-- ddfdfdf
--->
   <Namespace Name="Z">
 
+<Include File="DataTypes.xml"/>
 <Include File="data0.xml"/>
     <Field Name="field4"  Tag="443478" DataType="String"/>
 <Field Name="field7"  Tag="443471" DataType="J::En10"/>
@@ -28,7 +26,7 @@
       <Message Name="Message" Alias="JSDS" Extends="NameX::BaseM"  Tag="123">
         <Property Name="NameX::field1" Required="True"/>
         <Property Name="NameX::field2"  Required="True" />
-        <Property Name="NameX::Inj"  Required="True"/> 
+        <Property Name="NameX::Inj"  Required="True"/>
         <Property Name="field4"  Required="False"  />
         <Property Name="Z::J::field10"  Required="True"/>
         <Property Name="fieldN"  Required="True"/>

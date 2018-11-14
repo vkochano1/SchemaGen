@@ -7,7 +7,6 @@ class Renderer:
 
     def generateNamespaceBegin(self):
         out = ""
-
         for component in self.namespace.components:
             if component != '':
                 out = out + "\nnamespace %s\n{\n" % (component)
@@ -15,7 +14,6 @@ class Renderer:
 
     def generateNamespaceEnd(self):
         out = ""
-
         for component in self.namespace.components:
             if component != '':
                 out = out + "}\n"

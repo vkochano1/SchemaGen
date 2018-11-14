@@ -37,7 +37,7 @@ class Loader(object):
     def processDataTypeElements(element, namespace):
         if hasattr(element, 'DataType'):
             for dataType in element.DataType:
-                namespace.addDataType(loader.datatype.Loader().load(namespace, dataType))
+                namespace.addDataType(loader.datatype.Loader.load(namespace, dataType))
 
     @staticmethod
     def processImportElements(currentEl, namespace):

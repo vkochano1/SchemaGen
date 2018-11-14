@@ -6,39 +6,9 @@ import model.datatype
 import model.schema
 from model.common import *
 
-@utils.singleton
 class Loader(object):
-    def __init__(self):
-        self.libNamespace = model.schema.Schema().createOrGet("Lib")[-1]
-        self.defaultDataTypes = {
-
-     model.datatype.DataType (name = "Boolean", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "Flag", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "Double", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "Integer", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "Long", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "String", namespace = self.libNamespace, isString = True)
-    ,model.datatype.DataType (name = "LongString", namespace = self.libNamespace, headerFile = "Lib/String.h", isString = True)
-    ,model.datatype.DataType (name = "ShortString", namespace = self.libNamespace, headerFile = "Lib/String.h", isString = True)
-    ,model.datatype.DataType (name = "MediumString", namespace = self.libNamespace, headerFile = "Lib/String.h", isString = True)
-    ,model.datatype.DataType (name = "RegularString", namespace = self.libNamespace, headerFile = "Lib/String.h", isString = True)
-    ,model.datatype.DataType (name = "Price", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "TimeDuration", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "UtcDateTime", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "LocalDateTime", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "FixedBuffer", namespace = self.libNamespace, rank=1, isString = False, isSimpleType = True)
-    ,model.datatype.DataType (name = "FixedString", namespace = self.libNamespace, isString = False, isSimpleType = True)
-    }
-        self.defultDataTypesDict = dict( { (dtype.name, dtype) for dtype in self.defaultDataTypes } )
-
-
-    def lookUp(self, datatypeName):
-        resolved = self.defultDataTypesDict.get(datatypeName)
-        if not resolved:
-             raise Exception("Failed to resolve datatype %s" % datatypeName)
-        return resolved
-
-    def load(self, namespace, dataTypeElement):
+    @staticmethod
+    def load(namespace, dataTypeElement):
         name = dataTypeElement["Name"]
         name = name.replace("[*]","") # attributes can be applied to any datatype
         attrIsString = dataTypeElement["IsString"]
@@ -53,8 +23,10 @@ class Loader(object):
         attrRank = dataTypeElement["TypeRank"]
         rank = int(attrRank) if attrRank else MAX_PROP_RANK
 
-        return model.datatype.DataType(name, namespace
+        dataType = model.datatype.DataType(name, namespace
                                       , isSimpleType =  isSimpleType
                                       , isString = isString
                                       , headerFile = headerFile
                                       , rank = rank)
+
+        return dataType

@@ -22,7 +22,7 @@ class Schema(object):
         return createdNamespaces
 
     def createOrGet(self, namespaceName):
-        components = namespaceName.split('::')
+        components = utils.NamespacePath.componentsFromPath(namespaceName)
         currentPathComponents = []
         parentNamespace = self.namespaces['']
         namespace = parentNamespace

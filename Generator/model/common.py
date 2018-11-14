@@ -72,6 +72,15 @@ class ModelObject(object):
     def changePropDataCategory(self, newCategory):
         self.__propDataCategory = newCategory
 
+    def __str__(self):
+        out = """{{ Name='{name}', FullName='{fullName}', ObjectType='{objType}', PropertyType='{propType}'}}"""
+        return out.format(name= self.name
+                         , fullName = self.fullName
+                         , objType=str(self.objectType())
+                         , propType = str(self.propDataCategory()))
+    def __repr__(self):
+        return str(self)
+
 class ObjectProperty(object):
     def __init__(self, objectPropertyType, name, required):
         self.__objectPropertyType = objectPropertyType
