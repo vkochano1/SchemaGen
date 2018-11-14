@@ -1,12 +1,11 @@
 [[[cog
-import renderers.message
+import renderers.payload
 import renderers.namespace
 import renderers.common
 from model.common import *
 
-l = payload
 commonRenderer = renderers.common.Renderer(model, config)
-msgRenderer = renderers.message.Renderer(model,payload)
+msgRenderer = renderers.payload.Renderer(model,payload)
 nsRenderer = renderers.namespace.Renderer(model,payload.namespace())
 
 ]]]
@@ -22,7 +21,6 @@ includesForContainerBased="""#include <Lib/Types.h>
 #include <Lib/TypeTraits.h>
 #include <Lib/ContainerOp.h>
 #include <array>
-#include <Lib/PayloadType.h>
 
 #include <brigand/sequences/set.hpp>
 #include <brigand/sequences/append.hpp>
@@ -46,6 +44,7 @@ payloadSize = payload.payloadSize
   cog.outl("class {name} :  public Lib::PayloadType".format(name = payload.className))
 ]]]
 [[[end]]]
+{
 public:
   typedef Lib::PayloadType Base;
   [[[cog
@@ -72,7 +71,6 @@ public:
   ]]]
   [[[end]]]
   >;
-
   using Namespace_t = Lib::string_t
   <
   [[[cog
@@ -133,7 +131,7 @@ public:
     initParams = []
     for prop in payload.props:
       initList.append("_{name}(value{name})".format(name=prop.name))
-      initParams.append("const {type}& value{name}".format(name = prop.name, type = msgRenderer.genPropType(prop)))
+      initParams.append("const {type}::DataType& value{name}".format(name = prop.name, type = msgRenderer.genPropType(prop)))
 
     pattern = """{name} ({initParams}) : {initList}
     {{
@@ -149,6 +147,24 @@ public:
       cog.outl(noParams)
   ]]]
   [[[end]]]
+
+  [[[cog
+    pattern = """
+    /*****************************************************************************
+      Getters for {name}
+
+    ******************************************************************************/
+
+    const {typeName}& get{name} () const noexcept {{ return _{name}; }}
+
+    using {name}Type = {typeName};
+    """;
+
+    for prop in payload.props:
+      cog.outl(pattern.format(name=prop.name, typeName=msgRenderer.genPropType(prop) ))
+  ]]]
+  [[[end]]]
+
   template<typename F, typename ...ARGS>
   bool for_each( F && f, ARGS && ...args )
   {

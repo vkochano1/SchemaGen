@@ -2,6 +2,7 @@ import namespace
 import loader.datatype
 import logging
 import utils
+import copy
 from common import *
 
 class Field(ModelObject):
@@ -34,5 +35,8 @@ class Field(ModelObject):
             raise Exception('Failed to resolve datatype %s' % str(self.dataTypeName))
 
         if self.attrs != None:
-            self.dataType.fullName = self.dataType.namespace().fullName + "::" + self.dataType.name + "<" + ','.join(self.attrs) + ">"
-        self.__propDataCategory = self.dataType.propDataCategory()
+            ## need to create new data type with field atributes
+            cloned = copy.copy(self.dataType)
+            self.dataType.fullName = cloned.namespace().fullName + "::" + cloned.name + "<" + ','.join(self.attrs) + ">"
+            self.dataType = cloned
+        self.changePropDataCategory(self.dataType.propDataCategory())

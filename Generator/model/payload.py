@@ -16,7 +16,7 @@ class Payload(model.message.Message):
                 , payloadSize = 0):
         super(Payload, self).__init__(name, tag, namespace, basename = basename)
         self.isAbstractHeader = isAbstractHeader
-        self._ModelObject__objectType = ObjectType.Payload
+        self.changeObjectType(ObjectType.Payload)
         self.attributes = []
         self.payloadSize = payloadSize
         self.isAbstractHeader = isAbstractHeader

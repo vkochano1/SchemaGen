@@ -11,13 +11,13 @@ class ObjectType(Enum):
     Namespace     = 8
     Schema        = 9
     DataType      = 10
-    SchemaOffset   = 12
+    SchemaOffset  = 12
 
 class ObjectPropertyType(Enum):
-    Property = 1
-    Injection = 2
+    Property       = 1
+    Injection      = 2
     VectorProperty = 3
-    Attribute = 4
+    Attribute      = 4
 
 class PropDataCategory(Enum):
     String            = 1
@@ -59,6 +59,9 @@ class ModelObject(object):
 
     def objectType(self):
         return self.__objectType
+
+    def changeObjectType(self, newObjType):
+        self.__objectType = newObjType
 
     def namespace(self):
         return self.__namespace

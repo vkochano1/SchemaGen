@@ -89,9 +89,9 @@ protected:
   if msg.isAbstract == True:
     cog.outl("protected:")
     if msg.isPolymorphic == True:
-      cog.outl("virtual ~{name} {{ }}".format(name=msg.className))
+      cog.outl("virtual ~{name} () {{ }}".format(name=msg.className))
     else:
-      cog.outl("virtual ~{name} {{ }}".format(name=msg.className))
+      cog.outl("~{name} () {{ }}".format(name=msg.className))
 ]]]
 [[[end]]]
 

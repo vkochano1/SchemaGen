@@ -17,8 +17,8 @@
 
 
   <Namespace Name="Z::G::NameX">
-    <DataType Name="NT" HeaderFile="JJJJJJ.h"/>
-    <Field Name="field1" Tag="34" DataType="NT"/>
+    <DataType Name="NT" HeaderPath="JJJJJJ.h"/>
+    <Field Name="field1" Tag="34" DataType="Z::J::En10"/>
     <Field Name="field3"  Tag="44" DataType="RegularString"/>
     <Field Name="field2"  Tag="444"  DataType="FixedBuffer[1000]"/>
 
@@ -35,15 +35,15 @@
     </Message>
 
 
-    <Payload Name="BaseJ" PayloadSize = "10" Tag="1236" IsAbstractHeader="true">
+    <Payload Name="BaseJ" Size = "10" Tag="1236" AbstractHeader="true">
       <Property Name="field1" Required="True" DefaultValue="instance"/>
       <Property Name="field3" Required="True" DefaultValue="instance"/>
     </Payload>
 
-    <Payload Name="BaseMJ" PayloadSize = "11" Extends="BaseJ" Tag="122336">
+    <Payload Name="BaseMJ" Size = "11" Extends="BaseJ" Tag="122336">
       <Property Name="field7" Required="True"/>
-      <Attribute Name="field1" Required="True" ConstValue="ZZZZZ"/>
-      <Attribute Name="field2" Required="True" ConstValue="ZZZZZ2"/>
+      <Attribute Name="field1" Required="True" ConstantValue="Z::G::NameX::field1::ZZZZZ"/>
+      <Attribute Name="field2" Required="True" ConstantValue="ZZZZZ2"/>
 
     </Payload>
 

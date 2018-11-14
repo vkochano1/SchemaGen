@@ -4,9 +4,8 @@ import renderers.namespace
 import renderers.common
 from model.common import *
 
-l = payload
 commonRenderer = renderers.common.Renderer(model, config)
-msgRenderer = renderers.message.Renderer(model,payload)
+msgRenderer = renderers.payload.Renderer(model,payload)
 nsRenderer = renderers.namespace.Renderer(model,payload.namespace())
 
 ]]]
@@ -22,7 +21,6 @@ includesForContainerBased="""#include <Lib/Types.h>
 #include <Lib/TypeTraits.h>
 #include <Lib/ContainerOp.h>
 #include <array>
-#include <Lib/PayloadType.h>
 
 #include <brigand/sequences/set.hpp>
 #include <brigand/sequences/append.hpp>
@@ -50,10 +48,10 @@ while tmp != None:
   cog.outl("class {name} :  public {basename}".format(name = payload.className,basename= msgRenderer.genBaseClass()))
 ]]]
 [[[end]]]
+{
 public:
-  typedef Lib::PayloadType Base;
   [[[cog
-    cog.outl("typedef {basename} Base".format(basename = msgRenderer.genBaseClass()))
+    cog.outl("typedef {basename} Base;".format(basename = msgRenderer.genBaseClass()))
     cog.outl("enum {{ TAG = {tagVal} }};".format(tagVal = commonRenderer.genTagVal(payload)))
   ]]]
   [[[end]]]
@@ -91,20 +89,23 @@ public:
   static constexpr const char * shortName () { return ShortName_t::c_str(); }
 
   [[[cog
-    attrsForBase = []
+    constValsForBase = []
     attrByName = dict ( (attr.name, attr ) for attr in payload.attributes )
 
     if payload.baseMessage != None:
-      attrsForBase = [ attrByName[baseProp.name] for baseProp in payload.baseMessage.props if attrByName.get(baseProp.name)]
+      for baseProp in payload.baseMessage.props:
+          attr = attrByName.get(baseProp.name)
+          if attr != None:
+            propType = baseProp.propDataType().fullName
+            if baseProp.propDataType().propDataCategory() == PropDataCategory.Enumeration and attr.constValue.find(propType) != 0:
+              constValsForBase.append( propType + "::" + attr.constValue)
+            else:
+              constValsForBase.append( attr.constValue)
 
-    initList = []
-    for attr in attrsForBase:
-      initList.append("_{attr} ({constVal})".format(name = payload.name, attr = attr.name, constVal  = attr.constValue))
-
-    pattern = """{name} () : {initList}
+    pattern = """{name} () : Base({initList})
     {{
     }}
-    """.format(name = payload.name, initList = ",".join(initList))
+    """.format(name = payload.name, initList = ",".join(constValsForBase))
     cog.outl(pattern, dedent = True)
   ]]]
   [[[end]]]

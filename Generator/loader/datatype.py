@@ -40,7 +40,7 @@ class Loader(object):
 
     def load(self, namespace, dataTypeElement):
         name = dataTypeElement["Name"]
-
+        name = name.replace("[*]","") # attributes can be applied to any datatype
         attrIsString = dataTypeElement["IsString"]
         isString = attrIsString.lower() == "true" if attrIsString else False
 
@@ -50,7 +50,7 @@ class Loader(object):
         attrIsDerivedFromSimpleType = dataTypeElement["IsDerivedFromSimpleType"]
         isSimpleType = attrIsDerivedFromSimpleType.lower() == "true" if attrIsDerivedFromSimpleType else False
 
-        attrRank = dataTypeElement["Rank"]
+        attrRank = dataTypeElement["TypeRank"]
         rank = int(attrRank) if attrRank else MAX_PROP_RANK
 
         return model.datatype.DataType(name, namespace

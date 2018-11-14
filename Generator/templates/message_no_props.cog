@@ -74,9 +74,9 @@ public:
   if msg.isAbstract == True:
     cog.outl("protected:")
     if msg.isPolymorphic == True:
-      cog.outl("virtual ~{name} {{ }}".format(name=msg.className))
+      cog.outl("virtual ~{name} () {{ }}".format(name=msg.className))
     else:
-      cog.outl("virtual ~{name} {{ }}".format(name=msg.className))
+      cog.outl("~{name} () {{ }}".format(name=msg.className))
 ]]]
 [[[end]]]
 
@@ -235,7 +235,7 @@ public:
   template<typename FROM>
   {type} & operator << (const FROM & from )
   {{
-    from.for_each<Lib::ContainerOp::CommonFields< {type}, FROM> >
+    from.template for_each<Lib::ContainerOp::CommonFields< {type}, FROM> >
     (
       [this] (const auto & field) -> std::true_type
       {{

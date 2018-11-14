@@ -8,7 +8,7 @@ class Loader(object):
         propLoader = property.Loader()
         for el in  messageElement.get_elements():
             if el._name == 'Attribute':
-                attr = model.property.Attribute(el["Name"], el["ConstValue"])
+                attr = model.property.Attribute(el["Name"], el["ConstantValue"])
                 payload.addAttribute(attr)
             elif el._name == 'Property':
                 payload.addProperty(propLoader.load(el))
@@ -21,8 +21,8 @@ class Loader(object):
         "namespace" : namespace,
         "tag" : payloadElement["Tag"],
         "basename" : payloadElement["Extends"],
-        "isAbstractHeader" : payloadElement["IsAbstractHeader"].lower() == "true" if payloadElement["IsAbstractHeader"] else False,
-        "payloadSize" : int(payloadElement["PayloadSize"])
+        "isAbstractHeader" : payloadElement["AbstractHeader"].lower() == "true" if payloadElement["AbstractHeader"] else False,
+        "payloadSize" : int(payloadElement["Size"])
         }
 
         payload = model.payload.Payload(**msgArgs);
