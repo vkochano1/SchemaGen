@@ -52,9 +52,13 @@
       <Property Name="field2" Required="False" DefaultValue="abcd"/>
     </Message>
 
-    <Configuration Name="Conf" Extends="BaseM" Tag="1236">
-      <Property Name="field7" Required="True"/>
+    <Configuration Name="CM" Tag="12363">
+	    <Property Name="field1" Required="True"/>
       <Property Name="field2" Required="False" DefaultValue="abcd"/>
+    </Configuration>
+
+    <Configuration Name="Conf" Extends="CM" Tag="12367">
+      <Property Name="field3" Required="True"/>
     </Configuration>
 
     <Enumeration Name="En">

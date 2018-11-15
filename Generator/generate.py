@@ -8,7 +8,7 @@ import loader.project
 import renderers.schema
 
 
-def generate(project, onlyLoad):
+def generate(project, onlyLoad, skipNamespaces):
     project = loader.project.Loader(project)
     project.load()
 
@@ -25,9 +25,9 @@ parser.add_argument('action', choices = ['gen', 'load'], help="""gen  -> generat
                                                             , load -> only validates the schema""")
 parser.add_argument('project', help="""The project file path""")
 
-parser.add_argument('--skipNamespaces', default='',
+parser.add_argument('--skipNamespaces', default=None,
                     help='comma separated list of namespaces to be excluded from render set')
 
 args = parser.parse_args()
 
-generate(args.project, args.action == 'load')
+generate(args.project, args.action == 'load', args.skipNamespaces)

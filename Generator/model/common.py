@@ -103,4 +103,4 @@ class ObjectProperty(object):
         self.name = dataType.name
 
 
-MAX_PROP_RANK = 99
+MAX_PROP_RANK = 1

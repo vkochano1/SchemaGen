@@ -52,7 +52,6 @@ class Renderer(object):
         for _, namespace in self.schema.namespaces.iteritems():
             if not namespace.hasElements() or not self.cfg.needToRenderNamespace(namespace):
                 continue
-
             self.renderGroup("Messages", namespace, renderers.router.TemplateRouter, namespace.messagesByName)
             self.renderGroup("Enumerations", namespace, renderers.router.TemplateRouter, namespace.enumerations)
             self.renderGroup("Fields", namespace, renderers.router.TemplateRouter, namespace.fieldByName)

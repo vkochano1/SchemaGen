@@ -25,6 +25,6 @@ class Renderer(renderers.message.Renderer):
 
     def genBaseClass(self):
         if self.message.baseMessage == None:
-            return "Lib::PayloType";
+            return "Lib::PayloadType";
         prefix = renderers.common.Renderer.genQualifiedNS(self.message.baseMessage, self.message.namespace)
         return prefix + '::' + self.message.baseMessage.name if len(prefix) > 0 else self.message.baseMessage.name

@@ -227,15 +227,19 @@ public:
               pattern = """
               case string_hash(0, "{name}"):
                 if(0 != strcmp ("{name}", value))
+                {{
                   break;
+                }}
                 _value = {name};
                 return *this;
 
               case string_hash(0, "{nameLong}"):
                 if(0 != strcmp ("{nameLong}", value))
+                {{
                   break;
-                  _value = {name};
-                  return *this;"""
+                }}
+                _value = {name};
+                return *this;"""
 
               for name, value in enum.nameValueArr:
                 out = pattern.format(name = name, nameLong = enum.name + '::' + name)

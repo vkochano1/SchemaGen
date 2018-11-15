@@ -14,13 +14,14 @@ class Enumeration(ModelObject):
         self.rank = MAX_PROP_RANK
 
         for name, value in nameValueArr:
-            if self.isIntEnum:
+            if name == "Unk":
+                self.hasUnk  = True
+
+            if self.isIntEnum and not value.endswith("::TAG"):
                 try:
                     tmp = int(value)
                 except:
                     self.isIntEnum = False
-            if name == "Unk":
-                self.hasUnk  = True
 
         if self.hasUnk == False:
             self.nameValueArr.insert(0, ('Unk',-99999) if self.isIntEnum else ('Unk',"'?'") )
@@ -32,6 +33,12 @@ class Enumeration(ModelObject):
         if method.isOutOperator():
             self.hasCustomStreamOut = True
         self.methods.append(method)
+
+    def resolveLinks(self):
+        for i, (name, value) in enumerate(self.nameValueArr):
+            if str(value).endswith("::TAG"):
+                resolved = self.namespace().resolveFieldByName(value[:-len("::TAG")])
+                self.nameValueArr[i] = (name, int(resolved.tag))
 
     def __str__(self):
         items = ", ".join( [ "%s:'%s'" % (str(k), str(v)) for k, v in self.nameValueDict.iteritems()] )

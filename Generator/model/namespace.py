@@ -203,6 +203,9 @@ class Namespace(ModelObject):
         for name, configuration in self.configurationsByName.iteritems():
             configuration.resolveLinks()
 
+        for name, enum in self.enumerations.iteritems():
+            enum.resolveLinks()
+
         if self.schemaOffset != None:
             self.schemaOffset.resolveLinks()
 

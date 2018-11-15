@@ -9,25 +9,31 @@ class Config(object):
     def __init__( self, projectDir
                 , includeDirs, outDir
                 , schemaFile, logName
-                , skipNamespaces = ''):
+                , skipNamespaces = None):
         self.REVISION = "1"
         self.projectDir = projectDir
+        includeDirs = includeDirs.replace(",",";")
         self.includeDirs = [os.path.join(self.projectDir, name.strip()) for name in includeDirs.split(';')]
         self.includeDirs.append(projectDir)
         self.outDir = os.path.join(projectDir,outDir)
         self.schemaFile = schemaFile
         self.logName = os.path.join(projectDir,logName)
-        self.skipNamespaces = [name.strip() for name in skipNamespaces.split(';')]
+        self.skipNamespaces = []
+        if skipNamespaces:
+            self.skipNamespaces = [name.strip() for name in skipNamespaces.split(';')]
         self.env = loader.environment.Environment()
 
         for includeDir in self.includeDirs:
             self.env.addIncludePath(includeDir)
 
         format = '%(name)-20s:%(levelname)-8s: %(message)s'
-        logging.basicConfig(level=logging.DEBUG, format = format)
+        logging.basicConfig(level=logging.INFO, format = format)
 
     def needToRenderNamespace(self, namespace):
-        return not (namespace in self.skipNamespaces)
+        for toSkip in self.skipNamespaces:
+            if namespace.find(toSkip) == 0:
+                return False
+        return True
 
 
 class Loader(object):
